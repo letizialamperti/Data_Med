@@ -65,7 +65,7 @@ for i in tqdm(range(num_files)):
             else:
                 warnings.warn("ID of reverse read could not be matched to any forward read.")
     
-    store_dir = Path('/store/sdsc/sd29/med_data_wp3/MED_CSV')
+    store_dir = Path('/scratch/snx3000/llampert/MED_CSV')
     store_dir.mkdir(parents=True, exist_ok=True)
     save_file = store_dir / f'{sample_name}.csv'
     df = df.dropna()
