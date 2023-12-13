@@ -18,7 +18,7 @@ reverse_reads_files.sort()
 assert len(forward_reads_files) == len(reverse_reads_files)
 
 def get_sample_name(filename: str) -> str:
-    regex = fr'[0-9]+_NB[0-9]+_A_L1-4_AIMI-[0-9]+_R\d.fastq.gz'
+    regex = fr'\d+_SN\d+_A_L001_AIMI-\d+_R\d\.fastq\.gz'
     matches = re.findall(pattern=regex, string=filename)
     assert len(matches) == 1
 
