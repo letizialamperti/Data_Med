@@ -6,7 +6,7 @@ from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC_3-4')
+fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/med_2020')
 
 # Modify the pattern to match gzipped files with ".fastq.gz" extension
 forward_reads_files = list(fastq_dir.glob("*R1.fastq.gz"))
