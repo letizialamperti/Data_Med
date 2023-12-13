@@ -26,6 +26,14 @@ def get_sample_name(filename: str) -> str:
     return sample_name
 
 num_files = len(forward_reads_files)
+
+print("Forward files:", forward_reads_files)
+print("Reverse files:", reverse_reads_files)
+
+# Inside the loop
+for i in tqdm(range(num_files)):
+    file = forward_reads_files[i]
+    print("Processing:", file)
     
 for i in tqdm(range(num_files)):
     file = forward_reads_files[i]
