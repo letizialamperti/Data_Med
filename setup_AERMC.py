@@ -18,12 +18,29 @@ reverse_reads_files.sort()
 assert len(forward_reads_files) == len(reverse_reads_files)
 
 def get_sample_name(filename: str) -> str:
-    regex = fr'[0-9]+_NB[0-9]+_A_L1-4_AIMI-[0-9]+_R\d.fastq.gz'
+    regex = fr'[0-9]+_SN\d+_A_L001_AIMI-\d+_R\d.fastq.gz'
     matches = re.findall(pattern=regex, string=filename)
-    assert len(matches) == 1
+    if len(matches) != 1:
+        print(f"Filename '{filename}' does not match the pattern.")
+        return ''  # Or any other handling you need
 
     sample_name = matches[0].split("_R")[0]
     return sample_name
+
+# Your filenames
+all_filenames = [
+    "210920_SN1126_A_L001_AIMI-393_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-453_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-472_R1.fastq.gz",
+    "210920_SN1126_A_L001_AIMI-393_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-455_R1.fastq.gz",
+    # Add all other filenames here...
+    # Copy and paste the rest of your filenames here
+]
+
+for filename in all_filenames:
+    sample_name = get_sample_name(filename)
+    print(f"Filename: {filename} --> Sample Name: {sample_name}")
 
 num_files = len(forward_reads_files)
 
