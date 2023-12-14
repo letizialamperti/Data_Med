@@ -6,7 +6,7 @@ from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC_3-4')
+fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC')
 
 # Modify the pattern to match gzipped files with ".fastq.gz" extension
 forward_reads_files = list(fastq_dir.glob("*R1.fastq.gz"))
@@ -65,7 +65,7 @@ for i in tqdm(range(num_files)):
             else:
                 warnings.warn("ID of reverse read could not be matched to any forward read.")
     
-    store_dir = Path('/scratch/snx3000/llampert/MED_CSV')
+    store_dir = Path('/scratch/snx3000/llampert/MED_CSV/AERMC')
     store_dir.mkdir(parents=True, exist_ok=True)
     save_file = store_dir / f'{sample_name}.csv'
     df = df.dropna()
