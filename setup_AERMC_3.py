@@ -8,7 +8,6 @@ from tqdm.notebook import tqdm
 
 fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC_3')
 
-# Modify the pattern to match gzipped files with ".fastq.gz" extension
 forward_reads_files = list(fastq_dir.glob("*R1.fastq.gz"))
 reverse_reads_files = list(fastq_dir.glob("*R2.fastq.gz"))
 
@@ -18,35 +17,26 @@ reverse_reads_files.sort()
 assert len(forward_reads_files) == len(reverse_reads_files)
 
 def get_sample_name(filename: str) -> str:
-    regex = fr'[0-9]+_SN\d+_A_L001_AIMI-\d+_R\d.fastq.gz'
-    matches = re.findall(pattern=regex, string=filename)
-    if len(matches) != 1:
+    regex = r'\d+_SN\d+_A_L001_AIMI-\d+_(R[12])\.fastq\.gz'
+    matches = re.search(regex, filename)
+    if not matches:
         print(f"Filename '{filename}' does not match the pattern.")
         return ''  # Or any other handling you need
 
-    sample_name = matches[0].split("_R")[0]
+    sample_name = filename.split(matches.group(1))[0][:-1]  # Extracting sample name
     return sample_name
-
-forward_reads_files = [
-    "210601_SN1126_A_L001_AIMI-360_R1.fastq.gz",
-    "210602_SN1126_A_L001_AIMI-361_R1.fastq.gz",
-    "210601_SN1126_A_L001_AIMI-360_R2.fastq.gz",
-    "210602_SN1126_A_L001_AIMI-361_R2.fastq.gz",
-    # Add all other filenames here...
-]
 
 num_files = len(forward_reads_files)
 
 for filename in forward_reads_files:
-    sample_name = get_sample_name(filename)
-    print(f"Filename: {filename} --> Sample Name: {sample_name}")
+    sample_name = get_sample_name(filename.name)
+    print(f"Filename: {filename.name} --> Sample Name: {sample_name}")
 
 print(f"Total number of files processed: {num_files}")
 
 print("Forward files:", forward_reads_files)
 print("Reverse files:", reverse_reads_files)
 
-# Inside the loop
 for i in tqdm(range(num_files)):
     file = forward_reads_files[i]
     print("Processing:", file)
