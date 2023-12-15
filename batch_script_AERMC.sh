@@ -23,4 +23,4 @@ module load cray-python
 # Here you can just put the srun command you would execute. Just replace test_main.py with your script you want to run
 # Make sure to replace <your conda environment> below with the name of the conda environment you want to use
 srun -ul $HOME/miniconda3/envs/zioboia/bin/python Data_Med/setup_AERMC.py -u "${args}"
-srun -ul $HOME/miniconda3/envs/zioboia/bin/python Data_Med/setup_med_2020.py -u "${args}"
+
