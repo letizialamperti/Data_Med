@@ -18,7 +18,7 @@ reverse_reads_files.sort()
 assert len(forward_reads_files) == len(reverse_reads_files)
 
 def get_sample_name(filename: str) -> str:
-    regex = fr'[0-9]+_SN\d+_A_L001_AIMI-\d+_R\d.fastq.gz'
+    regex = r'\d+_NB\d+_A_L1-4_AIMI-\d+_(R[12])\.fastq\.gz'
     matches = re.findall(pattern=regex, string=filename)
     if len(matches) != 1:
         print(f"Filename '{filename}' does not match the pattern.")
@@ -27,64 +27,24 @@ def get_sample_name(filename: str) -> str:
     sample_name = matches[0].split("_R")[0]
     return sample_name
 
-# Your filenames
+# Your filenames, corrected
 all_filenames = [
-    "210920_SN1126_A_L001_AIMI-393_R1.fastq.gz",
-    "220201_NB501473_A_L1-4_AIMI-453_R2.fastq.gz",
-    "220201_NB501473_A_L1-4_AIMI-472_R1.fastq.gz",
-    "210920_SN1126_A_L001_AIMI-393_R2.fastq.gz",
-    "220201_NB501473_A_L1-4_AIMI-455_R1.fastq.gz",
-    # Add all other filenames here...
-    # Copy and paste the rest of your filenames here
-]
-
-for filename in all_filenames:
-    sample_name = get_sample_name(filename)
-    print(f"Filename: {filename} --> Sample Name: {sample_name}")
-
-num_files = len(forward_reads_files)
-
-print("Forward files:", forward_reads_files)
-print("Reverse files:", reverse_reads_files)
-
-# Inside the loop
-for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
-    print("Processing:", file)
-    
-for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
-    sample_name = get_sample_name(file.name)
-    ids = []
-    seqs = []
-
-    with gzip.open(file, 'rt') as handle:
-        for record in SeqIO.parse(handle, format='fastq'):
-            id = record.id
-            seq = record.seq.lower()
-            
-            ids.append(id)
-            seqs.append(str(seq))
-
-    df = pd.DataFrame(data=seqs, index=ids, columns=['Forward'])
-
-    df['Reverse'] = ''
-    file = reverse_reads_files[i]
-    assert sample_name == get_sample_name(file.name)
-
-    with gzip.open(file, 'rt') as handle:
-        for record in SeqIO.parse(handle, format='fastq'):
-            id = record.id
-            seq = record.seq.lower()
-
-            if id in df.index:
-                df.at[id, 'Reverse'] = str(seq)
-            else:
-                warnings.warn("ID of reverse read could not be matched to any forward read.")
-    
-    store_dir = Path('/scratch/snx3000/llampert/MED_CSV/AERMC')
-    store_dir.mkdir(parents=True, exist_ok=True)
-    save_file = store_dir / f'{sample_name}.csv'
-    df = df.dropna()
-    df = df.sample(frac=1)  # randomize
-    df.to_csv(save_file, index=False)
+    "210920_SN1126_A_L001_AIMI-393_R1.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-469_R1.fastq.gz",
+    "210920_SN1126_A_L001_AIMI-393_R2.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-469_R2.fastq.gz",
+    "210927_SN234_A_L001_AIMI-393_R1.fastq.gz",     "220201_NB501473_A_L1-4_AIMI-470_R1.fastq.gz",
+    "210927_SN234_A_L001_AIMI-393_R2.fastq.gz",     "220201_NB501473_A_L1-4_AIMI-470_R2.fastq.gz",
+    "210930_SN6662_A_L001_AIMI-391_R1.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-471_R1.fastq.gz",
+    "210930_SN6662_A_L001_AIMI-391_R2.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-471_R2.fastq.gz",
+    "211001_SN6662_A_L001_AIMI-392_R1.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-472_R1.fastq.gz",
+    "211001_SN6662_A_L001_AIMI-392_R2.fastq.gz",    "220201_NB501473_A_L1-4_AIMI-472_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-449_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-473_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-449_R2.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-473_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-452_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-474_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-452_R2.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-474_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-453_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-475_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-453_R2.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-475_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-455_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-476_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-455_R2.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-476_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-458_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-477_R1.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-458_R2.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-477_R2.fastq.gz",
+    "220201_NB501473_A_L1-4_AIMI-468_R1.fastq.gz",  "220201_NB501473_A_L1-4_AIMI-468_R2
