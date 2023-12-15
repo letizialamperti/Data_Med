@@ -8,16 +8,26 @@ from tqdm.notebook import tqdm
 
 fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC_Banyuls')
 
-# Modify the pattern to match gzipped files with ".fastq.gz" extension
-forward_reads_files = list(fastq_dir.glob("*R1.fastq.gz"))
-reverse_reads_files = list(fastq_dir.glob("*R2.fastq.gz"))
+# Filenames list
+filenames = [
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN1126_A_L001_AIMI-402_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN234_A_L001_AIMI-407_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN1126_A_L001_AIMI-402_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN234_A_L001_AIMI-407_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN6662_A_L001_AIMI-404_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211026_SN7280_A_L001_AIMI-403_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN6662_A_L001_AIMI-404_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211026_SN7280_A_L001_AIMI-403_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN7280_A_L001_AIMI-406_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211027_SN234_A_L001_AIMI-405_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN7280_A_L001_AIMI-406_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211027_SN234_A_L001_AIMI-405_R2.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN1126_A_L001_AIMI-408_R1.fastq.gz",
+    "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN1126_A_L001_AIMI-408_R2.fastq.gz"
+    # Add other filenames here...
+]
 
-forward_reads_files.sort()
-reverse_reads_files.sort()
-
-assert len(forward_reads_files) == len(reverse_reads_files)
-
-
+# Modify the pattern to match filenames
 def get_sample_name(filename: str) -> str:
     regex = r'\d+_SN\d+_A_L001_AIMI-\d+_R\d'
     matches = re.findall(pattern=regex, string=filename)
@@ -26,18 +36,17 @@ def get_sample_name(filename: str) -> str:
     sample_name = matches[0]
     return sample_name
 
-num_files = len(forward_reads_files)
+num_files = len(filenames)
 
-print("Forward files:", forward_reads_files)
-print("Reverse files:", reverse_reads_files)
+print("Filenames:", filenames)
 
 # Inside the loop
 for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
+    file = Path(filenames[i])
     print("Processing:", file)
     
 for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
+    file = Path(filenames[i])
     sample_name = get_sample_name(file.name)
     ids = []
     seqs = []
@@ -53,10 +62,10 @@ for i in tqdm(range(num_files)):
     df = pd.DataFrame(data=seqs, index=ids, columns=['Forward'])
 
     df['Reverse'] = ''
-    file = reverse_reads_files[i]
-    assert sample_name == get_sample_name(file.name)
+    reverse_file = file.parent / (sample_name + "_R2.fastq.gz")
+    assert sample_name == get_sample_name(reverse_file.name)
 
-    with gzip.open(file, 'rt') as handle:
+    with gzip.open(reverse_file, 'rt') as handle:
         for record in SeqIO.parse(handle, format='fastq'):
             id = record.id
             seq = record.seq.lower()
@@ -72,3 +81,4 @@ for i in tqdm(range(num_files)):
     df = df.dropna()
     df = df.sample(frac=1)  # randomize
     df.to_csv(save_file, index=False)
+
