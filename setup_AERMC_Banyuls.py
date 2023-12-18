@@ -9,7 +9,7 @@ from tqdm.notebook import tqdm
 fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC_Banyuls')
 
 # Filenames list
-filenames = [
+all_filenames = [
     "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN1126_A_L001_AIMI-402_R1.fastq.gz",
     "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN234_A_L001_AIMI-407_R1.fastq.gz",
     "AIMI%2FAIMI-20211012a%2Fdata%2F211015_SN1126_A_L001_AIMI-402_R2.fastq.gz",
