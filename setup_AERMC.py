@@ -58,20 +58,6 @@ reverse_reads_files.sort()
 
 assert len(forward_reads_files) == len(reverse_reads_files)
 
-def get_sample_name(filename: str) -> str:
-    regex = r'\d+_NB\d+_A_L1-4_AIMI-\d+_(R[12])\.fastq\.gz'
-    matches = re.findall(pattern=regex, string=filename)
-    if len(matches) != 1:
-        print(f"Filename '{filename}' does not match the pattern.")
-        return ''  # Or any other handling you need
-
-    sample_name = matches[0].split("_R")[0]
-    return sample_name
-
-for filename in all_filenames:
-    sample_name = get_sample_name(filename)
-    print(f"Filename: {filename} --> Sample Name: {sample_name}")
-
 num_files = len(forward_reads_files)
 
 print("Forward files:", forward_reads_files)
