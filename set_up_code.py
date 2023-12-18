@@ -6,7 +6,14 @@ from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-fastq_dir = Path('/store/sdsc/sd29/med_data_wp3/AERMC')
+# Check if the directory name argument is provided
+if len(sys.argv) < 2:
+    print("Please provide the directory name as an argument.")
+    sys.exit(1)
+
+# Get the directory name from the command-line argument
+directory_name = sys.argv[1]
+fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 
 # Read the filenames from the text file
 file_path = 'path/to/filenames.txt'  # Replace with your file path
@@ -65,7 +72,7 @@ for i in tqdm(range(num_files)):
             else:
                 warnings.warn("ID of reverse read could not be matched to any forward read.")
     
-    store_dir = Path('/scratch/snx3000/llampert/MED_CSV/AERMC')
+    store_dir = Path('/scratch/snx3000/llampert/MED_CSV/{directory_name}'')
     store_dir.mkdir(parents=True, exist_ok=True)
     save_file = store_dir / f'{sample_name}.csv'
     df = df.dropna()
