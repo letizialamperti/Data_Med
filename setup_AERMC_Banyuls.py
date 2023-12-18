@@ -26,28 +26,25 @@ filenames = [
     "AIMI%2FAIMI-20211012a%2Fdata%2F211019_SN1126_A_L001_AIMI-408_R2.fastq.gz"
     # Add other filenames here...
 ]
+forward_reads_files = [fastq_dir / filename for filename in all_filenames if "_R1.fastq.gz" in filename]
+reverse_reads_files = [fastq_dir / filename for filename in all_filenames if "_R2.fastq.gz" in filename]
 
-# Modify the pattern to match filenames
-def get_sample_name(filename: str) -> str:
-    regex = r'\d+_SN\d+_A_L001_AIMI-\d+_R\d'
-    matches = re.findall(pattern=regex, string=filename)
-    assert len(matches) == 1
+forward_reads_files.sort()
+reverse_reads_files.sort()
 
-    sample_name = matches[0]
-    return sample_name
+assert len(forward_reads_files) == len(reverse_reads_files)
 
-num_files = len(filenames)
+num_files = len(forward_reads_files)
 
-print("Filenames:", filenames)
+print("Forward files:", forward_reads_files)
+print("Reverse files:", reverse_reads_files)
 
 # Inside the loop
 for i in tqdm(range(num_files)):
-    file = Path(filenames[i])
+    file = forward_reads_files[i]
     print("Processing:", file)
-    
-for i in tqdm(range(num_files)):
-    file = Path(filenames[i])
-    sample_name = get_sample_name(file.name)
+    # Extract sample name from the filename directly
+    sample_name = file.stem.split('_R')[0]
     ids = []
     seqs = []
 
@@ -62,10 +59,11 @@ for i in tqdm(range(num_files)):
     df = pd.DataFrame(data=seqs, index=ids, columns=['Forward'])
 
     df['Reverse'] = ''
-    reverse_file = file.parent / (sample_name + "_R2.fastq.gz")
-    assert sample_name == get_sample_name(reverse_file.name)
+    file = reverse_reads_files[i]
+    # Extract sample name from the filename directly
+    assert sample_name == file.stem.split('_R')[0]
 
-    with gzip.open(reverse_file, 'rt') as handle:
+    with gzip.open(file, 'rt') as handle:
         for record in SeqIO.parse(handle, format='fastq'):
             id = record.id
             seq = record.seq.lower()
@@ -81,4 +79,5 @@ for i in tqdm(range(num_files)):
     df = df.dropna()
     df = df.sample(frac=1)  # randomize
     df.to_csv(save_file, index=False)
-
+    df = df.sample(frac=1)  # randomize
+    df.to_csv(save_file, index=False)
