@@ -67,10 +67,8 @@ print("Reverse files:", reverse_reads_files)
 for i in tqdm(range(num_files)):
     file = forward_reads_files[i]
     print("Processing:", file)
-    
-for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
-    sample_name = get_sample_name(file.name)
+    # Extract sample name from the filename directly
+    sample_name = file.stem.split('_R')[0]
     ids = []
     seqs = []
 
@@ -86,7 +84,8 @@ for i in tqdm(range(num_files)):
 
     df['Reverse'] = ''
     file = reverse_reads_files[i]
-    assert sample_name == get_sample_name(file.name)
+    # Extract sample name from the filename directly
+    assert sample_name == file.stem.split('_R')[0]
 
     with gzip.open(file, 'rt') as handle:
         for record in SeqIO.parse(handle, format='fastq'):
@@ -102,5 +101,7 @@ for i in tqdm(range(num_files)):
     store_dir.mkdir(parents=True, exist_ok=True)
     save_file = store_dir / f'{sample_name}.csv'
     df = df.dropna()
+    df = df.sample(frac=1)  # randomize
+    df.to_csv(save_file, index=False)
     df = df.sample(frac=1)  # randomize
     df.to_csv(save_file, index=False)
