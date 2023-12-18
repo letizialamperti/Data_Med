@@ -16,7 +16,7 @@ directory_name = sys.argv[1]
 fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 
 # Read the filenames from the text file
-file_path = 'path/to/filenames.txt'  # Replace with your file path
+file_path = 'path/to/{directory_name}.txt'  # Replace with your file path
 
 with open(file_path, 'r') as file:
     all_filenames = file.read().splitlines()
