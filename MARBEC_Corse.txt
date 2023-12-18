@@ -1,0 +1,6 @@
+VL267___MB1122F1___R2.fastq.gz  
+VL268___MB1122H___R2.fastq.gz   
+VL275___MB1122L1___R2.fastq.gz
+VL267___MB1122F1___R1.fastq.gz  
+VL268___MB1122H___R1.fastq.gz   
+VL275___MB1122L1___R1.fastq.gz
