@@ -4,7 +4,7 @@
 # DONT REMOVE THE # IN FRONT OF THE SBATCH
 
 #SBATCH --job-name=letizias-job
-#SBATCH --time=30:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
