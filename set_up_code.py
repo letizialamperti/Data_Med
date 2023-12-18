@@ -17,7 +17,7 @@ directory_name = sys.argv[1]
 fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 
 # Read the filenames from the text file
-filename = f'path/to/{directory_name}.txt'  # Update the path accordingly
+filename = f'Data_Med/{directory_name}.txt'  # Update the path accordingly
 all_filenames = []
 
 with open(filename, 'r') as file:
