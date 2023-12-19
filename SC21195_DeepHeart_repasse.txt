@@ -1,0 +1,8 @@
+MB0322H2_S2_L001_R1_001.fastq.gz  
+MB0322I1_S1_L001_R2_001.fastq.gz
+MB0322H1_S1_L001_R1_001.fastq.gz          
+MB0322H2_S2_L001_R2_001.fastq.gz  
+MB0322I2_S2_L001_R1_001.fastq.gz
+MB0322H1_S1_L001_R2_001.fastq.gz          
+MB0322I1_S1_L001_R1_001.fastq.gz  
+MB0322I2_S2_L001_R2_001.fastq.gz
