@@ -1,0 +1,8 @@
+VL331___MB0523B1___R2.fastq.gz 
+VL339___MB0623D3___R1.fastq.gz  
+VL349___MB0823C6___R2.fastq.gz
+VL331___MB0523B3___R1.fastq.gz  
+VL339___MB0623D3___R2.fastq.gz
+VL331___MB0523B1___R1.fastq.gz     
+VL331___MB0523B3___R2.fastq.gz  
+VL349___MB0823C6___R1.fastq.gz
