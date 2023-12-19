@@ -1,0 +1,16 @@
+VL323___MB0323A2___R1.fastq.gz  
+VL323___MB0323A5___R2.fastq.gz  
+VL336___MB0623C6___R1.fastq.gz
+VL320___MB0223A7___R1.fastq.gz  
+VL323___MB0323A2___R2.fastq.gz  
+VL324___MB0423A4___R1.fastq.gz  
+VL336___MB0623C6___R2.fastq.gz
+VL320___MB0223A7___R2.fastq.gz  
+VL323___MB0323A3___R1.fastq.gz  
+VL324___MB0423A4___R2.fastq.gz
+VL323___MB0323A1___R1.fastq.gz  
+VL323___MB0323A3___R2.fastq.gz  
+VL328___MB0423D5___R1.fastq.gz
+VL323___MB0323A1___R2.fastq.gz  
+VL323___MB0323A5___R1.fastq.gz  
+VL328___MB0423D5___R2.fastq.gz
