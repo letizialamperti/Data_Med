@@ -1,0 +1,6 @@
+VL348___MB0823B2___R2.fastq.gz  
+VL348___MB0823B3___R2.fastq.gz  
+VL348___MB0823B4___R2.fastq.gz
+VL348___MB0823B2___R1.fastq.gz  
+VL348___MB0823B3___R1.fastq.gz  
+VL348___MB0823B4___R1.fastq.gz
