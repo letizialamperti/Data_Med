@@ -52,6 +52,8 @@ with open(filename, 'r') as file:
         # Append each line (filename) to the list
         all_filenames.append(line.strip())
 
+num_files = len(all_filenames)  # Add this line to define num_files
+
 # Dictionary to store dataframes for each unique sample name
 unique_sample_dataframes = {}
 
