@@ -63,7 +63,8 @@ for i in tqdm(range(num_files)):
     print("Processing:", file)
 
     # Extract RUN name from the filename
-    run_name_match = re.search(r'RUN_(.*?)_[R1R2]', file.stem)
+    run_name_match = re.search(r'_RUN_(.*?)(?:_R1|_R2)', file.stem)
+
     if not run_name_match:
         print(f"Skipping {file}: RUN name not found in filename.")
         continue
