@@ -20,7 +20,7 @@ fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 # Find the Excel file case-insensitively
 excel_file = None
 for entry in os.listdir(fastq_dir):
-    if entry.lower().startswith("corr_tags") and entry.lower().endswith(f"{directory_name}.xlsx"):
+    if entry.lower().startswith("corr_tags") and entry.lower().endswith(f".xlsx"):
         excel_file = fastq_dir / entry
         break
 
