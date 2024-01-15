@@ -52,18 +52,14 @@ with open(filename, 'r') as file:
         # Append each line (filename) to the list
         all_filenames.append(line.strip())
 
-# Define forward and reverse reads files
-forward_reads_files = [fastq_dir / filename for filename in all_filenames if "_R1.fastq.gz" in filename]
-reverse_reads_files = [fastq_dir / filename for filename in all_filenames if "_R2.fastq.gz" in filename]
+num_files = len(all_filenames)  # Add this line to define num_files
 
-forward_reads_files.sort()
-reverse_reads_files.sort()
-
-num_files = len(forward_reads_files)  # Define num_files
+# Dictionary to store dataframes for each unique sample name
+unique_sample_dataframes = {}
 
 # Inside the loop
 for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
+    file = fastq_dir / all_filenames[i]
     print("Processing:", file)
 
     # Extract RUN name from the filename
@@ -97,7 +93,10 @@ for i in tqdm(range(num_files)):
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'ids': [], 'seqs_forward': [], 'seqs_reverse': []}
 
-        with gzip.open(file, 'rt') as handle:
+        forward_file = fastq_dir / f"{unique_sample_name}_R1.fastq.gz"
+        reverse_file = fastq_dir / f"{unique_sample_name}_R2.fastq.gz"
+
+        with gzip.open(forward_file, 'rt') as handle:
             for record in SeqIO.parse(handle, format='fastq'):
                 id = record.id
                 seq = record.seq.lower()
@@ -107,8 +106,7 @@ for i in tqdm(range(num_files)):
                     unique_sample_dataframes[unique_sample_name]['ids'].append(id)
                     unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
 
-        file = reverse_reads_files[i]
-        with gzip.open(file, 'rt') as handle:
+        with gzip.open(reverse_file, 'rt') as handle:
             for record in SeqIO.parse(handle, format='fastq'):
                 id = record.id
                 seq = record.seq.lower()
