@@ -1,6 +1,7 @@
 import re
 import sys
 import warnings
+import os
 import pandas as pd
 import gzip
 from Bio import SeqIO
