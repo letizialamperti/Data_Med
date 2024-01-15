@@ -6,6 +6,7 @@ import gzip
 from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
+import os
 
 # Check if the directory name argument is provided
 if len(sys.argv) < 2:
@@ -16,18 +17,19 @@ if len(sys.argv) < 2:
 directory_name = sys.argv[1]
 fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 
-# Read the filenames from the text file
-filename = f'/users/llampert/Data_Med/{directory_name}.txt'  # Update the path accordingly
-all_filenames = []
+# Find the Excel file case-insensitively
+excel_file = None
+for entry in os.listdir(fastq_dir):
+    if entry.lower().startswith("corr_tags") and entry.lower().endswith(f"{directory_name}.xlsx"):
+        excel_file = fastq_dir / entry
+        break
 
-with open(filename, 'r') as file:
-    for line in file:
-        # Append each line (filename) to the list
-        all_filenames.append(line.strip())
+if excel_file is None or not excel_file.exists():
+    print(f"Excel file not found for {directory_name}.")
+    sys.exit(1)
 
-# Load reference codes and samples from an Excel file
-reference_file = 'path/to/your/reference_file.xlsx'
-reference_df = pd.read_excel(reference_file)
+# Load reference codes and samples from the Excel file
+reference_df = pd.read_excel(excel_file)
 reference_codes = reference_df['ReferenceCode'].tolist()
 samples_to_exclude = ['other', 'OTHER']  # Add more if needed
 
