@@ -33,6 +33,15 @@ reference_df = pd.read_excel(excel_file)
 reference_codes = reference_df['ReferenceCode'].tolist()
 samples_to_exclude = ['other', 'OTHER']  # Add more if needed
 
+# Read the filenames from the text file
+filename = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'  # Update the path accordingly
+all_filenames = []
+
+with open(filename, 'r') as file:
+    for line in file:
+        # Append each line (filename) to the list
+        all_filenames.append(line.strip())
+
 # Print the list of filenames
 print(all_filenames)
 
@@ -93,8 +102,8 @@ for i in tqdm(range(num_files)):
 # Save dataframes to CSV files
 for sample_name, data in sample_dataframes.items():
     df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
-    
-    store_dir = Path(f'/scratch/snx3000/llampert/MED_SAMPLE_CSV/{directory_name}')
+
+    store_dir = Path(f'/scratch/snx3000/llampert/MED_CSV/{directory_name}')
     store_dir.mkdir(parents=True, exist_ok=True)
 
     # Save the CSV file with the sample name
