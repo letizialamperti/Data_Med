@@ -6,7 +6,6 @@ import gzip
 from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
-import os
 
 # Check if the directory name argument is provided
 if len(sys.argv) < 2:
@@ -17,21 +16,30 @@ if len(sys.argv) < 2:
 directory_name = sys.argv[1]
 fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
 
-# Find the Excel file case-insensitively
+# Find the Excel file that starts with 'corr_tags'
 excel_file = None
 for entry in os.listdir(fastq_dir):
     if entry.lower().startswith("corr_tags") and entry.lower().endswith(".xlsx"):
         excel_file = fastq_dir / entry
         break
 
-if excel_file is None or not excel_file.exists():
-    print(f"Excel file not found for {directory_name}.")
+if excel_file is None:
+    print("Excel file not found. Exiting.")
     sys.exit(1)
 
 # Load reference codes and samples from the Excel file
 reference_df = pd.read_excel(excel_file)
-reference_codes = reference_df['ReferenceCode'].tolist()
-samples_to_exclude = ['other', 'OTHER']  # Add more if needed
+
+# Use 'Sample' as the column name (case-insensitive)
+sample_column_name = reference_df.columns[reference_df.columns.str.lower() == 'sample'].tolist()
+
+if not sample_column_name:
+    print("Column 'Sample' not found in the Excel file. Exiting.")
+    sys.exit(1)
+
+reference_codes = reference_df[sample_column_name[0]].tolist()
+samples_to_exclude = ['other', 'OTHER', 'Other']  # Add more if needed
+
 
 # Read the filenames from the text file
 filename = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'  # Update the path accordingly
