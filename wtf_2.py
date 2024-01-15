@@ -59,7 +59,7 @@ unique_sample_dataframes = {}
 
 # Inside the loop
 for i in tqdm(range(num_files)):
-    file = fastq_dir / all_filenames[i]
+    file = forward_reads_files[i]
     print("Processing:", file)
 
     # Extract RUN name from the filename
@@ -69,10 +69,12 @@ for i in tqdm(range(num_files)):
         continue
 
     run_name = run_name_match.group(1)
+    print("RUN name:", run_name)
 
     # Subselect metadata from Excel for the same RUN
     run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
-
+    print("Run metadata:", run_metadata)
+    
     # Check if any metadata is found for the current RUN
     if not run_metadata.empty:
         # Extract unique tags for the current RUN
