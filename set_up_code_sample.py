@@ -74,49 +74,64 @@ sample_dataframes = {}
 for i in tqdm(range(num_files)):
     file = forward_reads_files[i]
     print("Processing:", file)
-    # Extract sample name from the filename directly
-    sample_name = file.stem.split('_R')[0]
+    
+    # Extract RUN name from the filename
+    run_name = re.search(r'RUN_(.*?)_', file.stem).group(1)
+    
+    # Subselect metadata from Excel for the same RUN
+    run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
 
-    # Check if the sample name should be excluded
-    if any(sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
-        print(f"Skipping {sample_name} as it should be excluded.")
-        continue
+    # Check if any metadata is found for the current RUN
+    if not run_metadata.empty:
+        # Extract unique tags for the current RUN
+        unique_tags = run_metadata['TAG'].unique()
 
-    # Check if the sample name exists in the dictionary, if not create a new dataframe
-    if sample_name not in sample_dataframes:
-        sample_dataframes[sample_name] = {'ids': [], 'seqs_forward': [], 'seqs_reverse': []}
+        # Extract sample name from the filename directly
+        sample_name = run_metadata['SAMPLE'].iloc[0]
 
-    with gzip.open(file, 'rt') as handle:
-        for record in SeqIO.parse(handle, format='fastq'):
-            id = record.id
-            seq = record.seq.lower()
+        # Extract unique sample name (excluding repeats before underscore)
+        unique_sample_name = re.sub(r'_\d+', '', sample_name)
 
-            # Check if the ID contains any of the reference codes
-            if any(ref_code in id for ref_code in reference_codes):
-                sample_dataframes[sample_name]['ids'].append(id)
-                sample_dataframes[sample_name]['seqs_forward'].append(str(seq))
+        # Check if the sample name should be excluded
+        if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
+            print(f"Skipping {sample_name} as it should be excluded.")
+            continue
 
-    file = reverse_reads_files[i]
-    with gzip.open(file, 'rt') as handle:
-        for record in SeqIO.parse(handle, format='fastq'):
-            id = record.id
-            seq = record.seq.lower()
+        # Check if the unique sample name exists in the dictionary, if not create a new dataframe
+        if unique_sample_name not in unique_sample_dataframes:
+            unique_sample_dataframes[unique_sample_name] = {'ids': [], 'seqs_forward': [], 'seqs_reverse': []}
 
-            # Check if the ID contains any of the reference codes
-            if id in sample_dataframes[sample_name]['ids']:
-                sample_dataframes[sample_name]['seqs_reverse'].append(str(seq))
-            else:
-                warnings.warn("ID of reverse read could not be matched to any forward read.")
+        with gzip.open(file, 'rt') as handle:
+            for record in SeqIO.parse(handle, format='fastq'):
+                id = record.id
+                seq = record.seq.lower()
+
+                # Check if the ID contains any of the unique tags for the current RUN
+                if any(tag in id for tag in unique_tags):
+                    unique_sample_dataframes[unique_sample_name]['ids'].append(id)
+                    unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
+
+        file = reverse_reads_files[i]
+        with gzip.open(file, 'rt') as handle:
+            for record in SeqIO.parse(handle, format='fastq'):
+                id = record.id
+                seq = record.seq.lower()
+
+                # Check if the ID contains any of the unique tags for the current RUN
+                if id in unique_sample_dataframes[unique_sample_name]['ids']:
+                    unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
+                else:
+                    warnings.warn("ID of reverse read could not be matched to any forward read.")
 
 # Save dataframes to CSV files
-for sample_name, data in sample_dataframes.items():
+for unique_sample_name, data in unique_sample_dataframes.items():
     df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
 
     store_dir = Path(f'/scratch/snx3000/llampert/MED_SAMPLES_CSV/{directory_name}')
     store_dir.mkdir(parents=True, exist_ok=True)
 
     # Save the CSV file with the sample name
-    save_file = store_dir / f'{sample_name}.csv'
+    save_file = store_dir / f'{unique_sample_name}.csv'
     df = df.dropna()
     df = df.sample(frac=1)  # randomize
     df.to_csv(save_file, index=False)
