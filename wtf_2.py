@@ -52,10 +52,14 @@ with open(filename, 'r') as file:
         # Append each line (filename) to the list
         all_filenames.append(line.strip())
 
-num_files = len(all_filenames)  # Add this line to define num_files
+# Define forward and reverse reads files
+forward_reads_files = [fastq_dir / filename for filename in all_filenames if "_R1.fastq.gz" in filename]
+reverse_reads_files = [fastq_dir / filename for filename in all_filenames if "_R2.fastq.gz" in filename]
 
-# Dictionary to store dataframes for each unique sample name
-unique_sample_dataframes = {}
+forward_reads_files.sort()
+reverse_reads_files.sort()
+
+num_files = len(forward_reads_files)  # Define num_files
 
 # Inside the loop
 for i in tqdm(range(num_files)):
