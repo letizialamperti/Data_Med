@@ -63,7 +63,7 @@ for i in tqdm(range(num_files)):
     print("Processing:", file)
 
     # Extract RUN name from the filename
-    run_name_match = re.search(r'_(RUN|run)_(.*?)(?:_R1|_R2)', file)
+    run_name_match = re.search(r'_(RUN|run)_([^_]+)', file)
     if not run_name_match:
         print(f"Skipping {file}: RUN name not found in filename.")
         continue
@@ -74,7 +74,6 @@ for i in tqdm(range(num_files)):
     # Subselect metadata from Excel for the same RUN
     run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
 
-    # ... rest of the loop ...
 
     print("Run metadata:", run_metadata)
     
