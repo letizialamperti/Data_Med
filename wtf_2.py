@@ -59,7 +59,7 @@ unique_sample_dataframes = {}
 
 # Inside the loop
 for i in tqdm(range(num_files)):
-    file = forward_reads_files[i]
+    file = Path(all_filenames[i])
     print("Processing:", file)
 
     # Extract RUN name from the filename
