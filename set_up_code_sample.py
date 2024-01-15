@@ -103,7 +103,7 @@ for i in tqdm(range(num_files)):
 for sample_name, data in sample_dataframes.items():
     df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
 
-    store_dir = Path(f'/scratch/snx3000/llampert/MED_CSV/{directory_name}')
+    store_dir = Path(f'/scratch/snx3000/llampert/MED_SAMPLES_CSV/{directory_name}')
     store_dir.mkdir(parents=True, exist_ok=True)
 
     # Save the CSV file with the sample name
