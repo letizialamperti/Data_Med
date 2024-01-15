@@ -31,6 +31,9 @@ if excel_file is None:
 # Load reference codes and samples from the Excel file
 reference_df = pd.read_excel(excel_file)
 
+# Initialize sample_dataframes dictionary
+sample_dataframes = {}
+
 # Use 'Sample' as the column name (case-insensitive)
 sample_column_name = reference_df.columns[reference_df.columns.str.lower() == 'sample'].tolist()
 
