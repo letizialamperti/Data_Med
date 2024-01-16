@@ -45,14 +45,17 @@ def extract_base_sample_name(sample_name):
 def process_file(directory, filename, reference_df, samples_to_exclude, unique_sample_dataframes):
     logging.info("Processing: %s", filename)
 
+    # Construct file paths for forward and reverse FASTQ files
     forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
     reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
 
+    # Check if both forward and reverse files exist
     if not forward_file.exists() or not reverse_file.exists():
         error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
         logging.error(error_message)
         raise FileNotFoundError(error_message)
 
+    # Extract the RUN name from the filename using a regular expression
     run_name_match = re.search(r'_(.{8})_[R12]', filename)
     if not run_name_match:
         logging.warning(f"Skipping {filename}: RUN name not found in filename.")
@@ -61,6 +64,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
     run_name = run_name_match.group(1)
     logging.info("Extracted RUN name: %s", run_name)
 
+    # Filter metadata based on the extracted RUN name
     run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
     logging.info("Run metadata: %s", run_metadata)
 
@@ -68,38 +72,47 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
+    # Iterate through each row in the filtered metadata for the current RUN
     for idx, row in run_metadata.iterrows():
         # Get the sample name and the respective tag from each row
         sample_name = row['SAMPLE']
         tag = row['TAG']
 
-        # Use the mapping to get the cleaned-up version
+        # Use the mapping to get the cleaned-up version of the sample name
         unique_sample_name = extract_base_sample_name(sample_name)
 
+        # Skip samples based on exclusion criteria
         if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
             continue
 
+        # Initialize data structures if necessary
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'tags': {tag: {'seqs_forward': [], 'seqs_reverse': []}}}
         elif tag not in unique_sample_dataframes[unique_sample_name]['tags']:
             unique_sample_dataframes[unique_sample_name]['tags'][tag] = {'seqs_forward': [], 'seqs_reverse': []}
 
         try:
-            with gzip.open(forward_file, 'rt') as handle:
-                for record in SeqIO.parse(handle, format='fastq'):
-                    id = record.id
-                    seq = record.seq.lower()
-                    if any(tag in id for tag in [tag]):
-                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_forward'].append(str(seq))
+            # Process the forward FASTQ file
+            with gzip.open(forward_file, 'rt') as forward_handle:
+                for forward_record in SeqIO.parse(forward_handle, format='fastq'):
+                    forward_id = forward_record.id
+                    forward_seq = forward_record.seq.lower()
 
-            with gzip.open(reverse_file, 'rt') as handle:
-                for record in SeqIO.parse(handle, format='fastq'):
-                    id = record.id
-                    seq = record.seq.lower()
-                    if any(tag in id for tag in [tag]):
-                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_reverse'].append(str(seq))
-                    else:
-                        warnings.warn("ID of reverse read could not be matched to any forward read.")
+                    # Check if the tag is in the ID
+                    if tag in forward_id:
+                        # Look for the corresponding reverse sequence
+                        with gzip.open(reverse_file, 'rt') as reverse_handle:
+                            for reverse_record in SeqIO.parse(reverse_handle, format='fastq'):
+                                reverse_id = reverse_record.id
+                                reverse_seq = reverse_record.seq.lower()
+
+                                # If the tag is in the reverse ID, associate the pair
+                                if tag in reverse_id and forward_id.replace(tag, '') == reverse_id.replace(tag, ''):
+                                    unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_forward'].append(str(forward_seq))
+                                    unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_reverse'].append(str(reverse_seq))
+                                    break  # Exit the inner loop after finding the matching reverse sequence
+                            else:
+                                warnings.warn("No matching reverse sequence found for the forward sequence.")
 
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
