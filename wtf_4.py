@@ -112,6 +112,8 @@ def save_to_csv(unique_sample_dataframes, directory):
             df = df.sample(frac=1)  # randomize
             df.to_csv(save_file, index=False)
             logging.info(f"CSV saved for {unique_sample_name}")
+            logging.info(f"Saving CSV for {unique_sample_name} to {save_file}")
+
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
 
@@ -142,6 +144,7 @@ def main():
         process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, fastq_dir)
+    
 
 if __name__ == "__main__":
     main()
