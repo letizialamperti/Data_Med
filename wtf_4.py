@@ -150,7 +150,7 @@ def main():
 
     unique_sample_dataframes = {}
 
-    for i in tqdm(range(num_files)):
+    for i in range(num_files):
         process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, store_dir)
