@@ -105,7 +105,7 @@ def save_to_csv(unique_sample_dataframes, directory):
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
             df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
-            store_dir = Path(directory) / 'MED_SAMPLES_CSV' / unique_sample_name
+            store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / unique_sample_name
             store_dir.mkdir(parents=True, exist_ok=True)
             save_file = store_dir / 'output.csv'
             df = df.dropna()
