@@ -106,13 +106,16 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                                 reverse_id = reverse_record.id
                                 reverse_seq = reverse_record.seq.lower()
 
-                                # If the tag is in the reverse ID, associate the pair
-                                if tag in reverse_id and forward_id.replace(tag, '') == reverse_id.replace(tag, ''):
+                                
+                                # If the tag is in the reverse ID and the cleaned IDs match, associate the pair
+                                if tag in reverse_id and extract_base_sample_name(forward_id) == extract_base_sample_name(reverse_id):
                                     unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_forward'].append(str(forward_seq))
                                     unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_reverse'].append(str(reverse_seq))
                                     break  # Exit the inner loop after finding the matching reverse sequence
                             else:
                                 warnings.warn("No matching reverse sequence found for the forward sequence.")
+
+                                
 
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
