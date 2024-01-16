@@ -63,7 +63,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
-    unique_tags = run_metadata['TAG']
+    unique_tags = run_metadata['TAG'].unique()
 
     for idx, row in run_metadata.iterrows():
         # Get the sample name from each row
@@ -77,8 +77,8 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
-        forward_file = directory / f"{filename.replace('_R2.fastq.gz', '')}_R1.fastq.gz"
-        reverse_file = directory / f"{filename.replace('_R1.fastq.gz', '')}_R2.fastq.gz"
+        forward_file = directory / f"{filename[:-10]}_R1.fastq.gz"
+        reverse_file = directory / f"{filename[:-10]}_R2.fastq.gz"
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
@@ -88,7 +88,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                     if any(tag in id for tag in unique_tags):
                         unique_sample_dataframes[unique_sample_name]['ids'].add(id)
                         unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
-        
+
             with gzip.open(reverse_file, 'rt') as handle:
                 for record in SeqIO.parse(handle, format='fastq'):
                     id = record.id
@@ -97,7 +97,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                         unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
                     else:
                         warnings.warn("ID of reverse read could not be matched to any forward read.")
-        
+
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
 
@@ -105,6 +105,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.info(f"Processed file for {unique_sample_name}. Found {len(unique_sample_dataframes[unique_sample_name]['ids'])} unique IDs.")
 
     logging.info("Finished processing: %s", filename)
+
 
 
 
