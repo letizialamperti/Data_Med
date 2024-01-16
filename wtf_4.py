@@ -102,7 +102,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
-    logging.info("unique_sample_dataframes: {unique_sample_dataframes}")
+    logging.info("unique_sample_dataframes %s", unique_sample_dataframes)
     
     for unique_sample_name, data in unique_sample_dataframes.items():
         try:
