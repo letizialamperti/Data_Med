@@ -88,7 +88,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                     if any(tag in id for tag in unique_tags):
                         unique_sample_dataframes[unique_sample_name]['ids'].add(id)
                         unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
-
+        
             with gzip.open(reverse_file, 'rt') as handle:
                 for record in SeqIO.parse(handle, format='fastq'):
                     id = record.id
@@ -97,7 +97,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                         unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
                     else:
                         warnings.warn("ID of reverse read could not be matched to any forward read.")
-
+        
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
 
