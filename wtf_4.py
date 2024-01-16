@@ -105,17 +105,24 @@ def save_to_csv(unique_sample_dataframes, directory):
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
             df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
+
+            # Debugging statements
+            logging.info(f"CSV DataFrame size for {unique_sample_name}: {df.shape}")
+
             store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / unique_sample_name
             store_dir.mkdir(parents=True, exist_ok=True)
             save_file = store_dir / 'output.csv'
+
+            # Debugging statements
+            logging.info(f"Saving CSV for {unique_sample_name} to {save_file}")
+
             df = df.dropna()
             df = df.sample(frac=1)  # randomize
             df.to_csv(save_file, index=False)
             logging.info(f"CSV saved for {unique_sample_name}")
-            logging.info(f"Saving CSV for {unique_sample_name} to {save_file}")
-
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
+
 
 
 def main():
@@ -141,10 +148,14 @@ def main():
 
     unique_sample_dataframes = {}
 
-    for i in tqdm(range(num_files)):
-        process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+for i in tqdm(range(num_files)):
+    process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
-    save_to_csv(unique_sample_dataframes, store_dir)
+# Debugging statement
+logging.info(f"Number of unique samples with data: {len(unique_sample_dataframes)}")
+
+save_to_csv(unique_sample_dataframes, store_dir)
+
 
 if __name__ == "__main__":
     main()
