@@ -105,8 +105,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
-    logging.info("uniquesample dataframes %s", unique_sample_dataframes)
-    
+
     for unique_sample_name, data in unique_sample_dataframes.items():
         try:
             df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
@@ -114,9 +113,10 @@ def save_to_csv(unique_sample_dataframes, directory):
             # Debugging statements
             logging.info(f"CSV DataFrame size for {unique_sample_name}: {df.shape}")
 
-            store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / unique_sample_name
+            # Use the directory name as the folder and the unique sample name as the CSV filename
+            store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / directory
             store_dir.mkdir(parents=True, exist_ok=True)
-            save_file = store_dir / 'output.csv'
+            save_file = store_dir / f'{unique_sample_name}.csv'
 
             # Debugging statements
             logging.info(f"Saving CSV for {unique_sample_name} to {save_file}")
@@ -127,7 +127,7 @@ def save_to_csv(unique_sample_dataframes, directory):
             logging.info(f"CSV saved for {unique_sample_name}")
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
-            
+
 
 
 
@@ -158,7 +158,7 @@ def main():
     unique_sample_dataframes = {}
     logging.info(f"All Filenames: {all_filenames}, num_files : {num_files}")
 
-    for i, filename in enumerate(all_filenames):
+    for i, filename in tqdm(enumerate(all_filenames), desc="Processing files", total=num_files):
         logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
         process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
