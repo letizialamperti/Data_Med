@@ -38,20 +38,11 @@ def load_metadata(excel_file):
     except Exception as e:
         exit_with_error(f"Error loading metadata: {str(e)}")
 
-def create_sample_name_mapping(run_metadata):
-    sample_name_mapping = {}
-    for _, row in run_metadata.iterrows():
-        original_sample_name = row['SAMPLE']
-        cleaned_up_sample_name = re.sub(r'_\d+', '', original_sample_name)
-        tag = row['TAG']  # Assuming there is a 'TAG' column in your metadata
-        sample_name_mapping[original_sample_name] = {'cleaned_up_name': cleaned_up_sample_name, 'tag': tag}
-    return sample_name_mapping
-
 def extract_base_sample_name(sample_name):
     return re.sub(r'_\d+$', '', sample_name)
 
 
-def process_file(directory, filename, reference_df, samples_to_exclude, unique_sample_dataframes, sample_name_mapping):
+def process_file(directory, filename, reference_df, samples_to_exclude, unique_sample_dataframes):
     logging.info("Processing: %s", filename)
 
     forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
@@ -158,7 +149,7 @@ def main():
         exit_with_error("Excel file not found. Exiting.")
 
     reference_df = load_metadata(excel_file)
-    sample_name_mapping = create_sample_name_mapping(reference_df)
+  
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
     all_filenames = read_filename_list(filename_list_path)
