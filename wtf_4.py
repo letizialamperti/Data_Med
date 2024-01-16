@@ -102,6 +102,8 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
+    logging.info("unique_sample_dataframes: {unique_sample_dataframes}")
+    
     for unique_sample_name, data in unique_sample_dataframes.items():
         try:
             df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
@@ -135,7 +137,7 @@ def main():
 
     directory_name = sys.argv[1]
     fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
-    store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV/')
+    store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV')
 
     excel_file = locate_excel_file(fastq_dir)
     if excel_file is None:
@@ -151,7 +153,7 @@ def main():
     num_files = len(all_filenames)
 
     unique_sample_dataframes = {}
-    logging.info(f"All Filenames: {all_filenames}")
+    logging.info(f"All Filenames: {all_filenames}, num_files : {num_files}")
 
     for i, filename in enumerate(all_filenames):
         logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
