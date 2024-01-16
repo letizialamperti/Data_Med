@@ -144,18 +144,16 @@ def main():
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
     all_filenames = read_filename_list(filename_list_path)
+    
+    # Define num_files after reading the filenames
     num_files = len(all_filenames)
 
     unique_sample_dataframes = {}
 
-for i in tqdm(range(num_files)):
-    process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+    for i in tqdm(range(num_files)):
+        process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
-# Debugging statement
-logging.info(f"Number of unique samples with data: {len(unique_sample_dataframes)}")
-
-save_to_csv(unique_sample_dataframes, store_dir)
-
+    save_to_csv(unique_sample_dataframes, store_dir)
 
 if __name__ == "__main__":
     main()
