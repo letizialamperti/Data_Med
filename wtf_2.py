@@ -89,7 +89,7 @@ for i in tqdm(range(num_files)):
 
         # Check if the sample name should be excluded
         if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
-            print(f"Skipping {sample_name} as it should be excluded.")
+    
             continue
 
         # Check if the unique sample name exists in the dictionary, if not create a new dataframe
