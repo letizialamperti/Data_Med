@@ -154,9 +154,9 @@ def main():
     logging.info(f"All Filenames: {all_filenames}")
 
 
-    for i in tqdm(range(num_files)):
-        logging.info(f"Processing file: {all_filenames[i]}")
-        process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+    for i, filename in enumerate(all_filenames):
+    logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
+    process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, store_dir)
 
