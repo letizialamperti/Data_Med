@@ -77,8 +77,8 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
-        forward_file = directory / f"{unique_sample_name}_R1.fastq.gz"
-        reverse_file = directory / f"{unique_sample_name}_R2.fastq.gz"
+        forward_file = directory / f"{filename[:-11]}_R1.fastq.gz"
+        reverse_file = directory / f"{filename[:-11]}_R2.fastq.gz"
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
