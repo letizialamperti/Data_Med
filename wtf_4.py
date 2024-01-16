@@ -63,46 +63,45 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
-    unique_tags = run_metadata['TAG'].unique()
+    for _, row in run_metadata.iterrows():
+        # Get the original sample name from the row
+        original_sample_name = row['SAMPLE']
 
-    # Get the first sample name
-    sample_name = run_metadata['SAMPLE'].iloc[0]
+        # Clean up the sample name
+        unique_sample_name = sample_name_mapping.get(original_sample_name, original_sample_name)
 
-    # Use the mapping to get the cleaned-up version
-    unique_sample_name = sample_name_mapping.get(sample_name, sample_name)
-    logging.info(f"Original sample name: {sample_name}, Cleaned-up sample name: {unique_sample_name}")
+        # Check exclusion prefixes using the original sample name
+        if any(original_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
+            logging.info(f"Skipping {filename} for {unique_sample_name} (excluded prefix).")
+            continue
 
-    if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
-        logging.info(f"Skipping {filename} for {unique_sample_name} (excluded prefix).")
-        return
+        logging.info(f"Original sample name: {original_sample_name}, Cleaned-up sample name: {unique_sample_name}")
 
-    if unique_sample_name not in unique_sample_dataframes:
-        unique_sample_dataframes[unique_sample_name] = {'ids': [], 'seqs_forward': [], 'seqs_reverse': []}
+        if unique_sample_name not in unique_sample_dataframes:
+            unique_sample_dataframes[unique_sample_name] = {'ids': [], 'seqs_forward': [], 'seqs_reverse': []}
 
-    forward_file = directory / f"{unique_sample_name}_R1.fastq.gz"
-    reverse_file = directory / f"{unique_sample_name}_R2.fastq.gz"
+        forward_file = directory / f"{unique_sample_name}_R1.fastq.gz"
+        reverse_file = directory / f"{unique_sample_name}_R2.fastq.gz"
 
-    try:
-        with gzip.open(forward_file, 'rt') as handle:
-            for record in SeqIO.parse(handle, format='fastq'):
-                id = record.id
-                seq = record.seq.lower()
-                if any(tag in id for tag in unique_tags):
-                    unique_sample_dataframes[unique_sample_name]['ids'].append(id)
-                    unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
+        try:
+            with gzip.open(forward_file, 'rt') as handle:
+                for record in SeqIO.parse(handle, format='fastq'):
+                    id = record.id
+                    seq = record.seq.lower()
+                    if any(tag in id for tag in row['TAG'].split(',')):
+                        unique_sample_dataframes[unique_sample_name]['ids'].append(id)
+                        unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
 
-        with gzip.open(reverse_file, 'rt') as handle:
-            for record in SeqIO.parse(handle, format='fastq'):
-                id = record.id
-                seq = record.seq.lower()
-                if id in unique_sample_dataframes[unique_sample_name]['ids']:
-                    unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
-                else:
-                    warnings.warn("ID of reverse read could not be matched to any forward read.")
-    except Exception as e:
-        logging.warning(f"Error processing file {filename}: {str(e)}")
-
-    logging.info(f"Processed {filename} for {unique_sample_name}. Data: {unique_sample_dataframes[unique_sample_name]}")
+            with gzip.open(reverse_file, 'rt') as handle:
+                for record in SeqIO.parse(handle, format='fastq'):
+                    id = record.id
+                    seq = record.seq.lower()
+                    if id in unique_sample_dataframes[unique_sample_name]['ids']:
+                        unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
+                    else:
+                        warnings.warn("ID of reverse read could not be matched to any forward read.")
+        except Exception as e:
+            logging.warning(f"Error processing file {filename}: {str(e)}")
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
