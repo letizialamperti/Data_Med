@@ -47,16 +47,20 @@ def create_sample_name_mapping(run_metadata):
         sample_name_mapping[original_sample_name] = {'cleaned_up_name': cleaned_up_sample_name, 'tag': tag}
     return sample_name_mapping
 
+def extract_base_sample_name(sample_name):
+    return re.sub(r'_\d+$', '', sample_name)
+
+
 def process_file(directory, filename, reference_df, samples_to_exclude, unique_sample_dataframes, sample_name_mapping):
     logging.info("Processing: %s", filename)
 
     forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
     reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
-    
+
     if not forward_file.exists() or not reverse_file.exists():
-            error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
-            logging.error(error_message)
-            raise FileNotFoundError(error_message)
+        error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
+        logging.error(error_message)
+        raise FileNotFoundError(error_message)
 
     run_name_match = re.search(r'_(.{8})_[R12]', filename)
     if not run_name_match:
@@ -73,50 +77,43 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
-    #unique_tags = run_metadata['TAG'].unique()
-
     for idx, row in run_metadata.iterrows():
-        # Get the sample name from each row
+        # Get the sample name and the respective tag from each row
         sample_name = row['SAMPLE']
+        tag = row['TAG']
+
         # Use the mapping to get the cleaned-up version
-        unique_sample_name = sample_name_mapping.get(sample_name, sample_name)
+        unique_sample_name = extract_base_sample_name(sample_name)
 
         if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
             continue
 
         if unique_sample_name not in unique_sample_dataframes:
-            unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
+            unique_sample_dataframes[unique_sample_name] = {'tags': {tag: {'seqs_forward': [], 'seqs_reverse': []}}}
+        elif tag not in unique_sample_dataframes[unique_sample_name]['tags']:
+            unique_sample_dataframes[unique_sample_name]['tags'][tag] = {'seqs_forward': [], 'seqs_reverse': []}
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
                 for record in SeqIO.parse(handle, format='fastq'):
                     id = record.id
                     seq = record.seq.lower()
-                    if any(tag in id for tag in unique_tags):
-                        unique_sample_dataframes[unique_sample_name]['ids'].add(id)
-                        unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
+                    if any(tag in id for tag in [tag]):
+                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_forward'].append(str(seq))
 
             with gzip.open(reverse_file, 'rt') as handle:
                 for record in SeqIO.parse(handle, format='fastq'):
                     id = record.id
                     seq = record.seq.lower()
-                    if id in unique_sample_dataframes[unique_sample_name]['ids']:
-                        unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
+                    if any(tag in id for tag in [tag]):
+                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_reverse'].append(str(seq))
                     else:
                         warnings.warn("ID of reverse read could not be matched to any forward read.")
 
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
 
-        # Debugging statement
-        logging.info(f"Processed file for {unique_sample_name}. Found {len(unique_sample_dataframes[unique_sample_name]['ids'])} unique IDs.")
-
     logging.info("Finished processing: %s", filename)
-
-
-    logging.info("Finished processing: %s", filename)
-
-
 
 
 def save_to_csv(unique_sample_dataframes, directory):
@@ -178,7 +175,7 @@ def main():
             continue
 
         logging.info(f"Processing R1 file ({i+1}/{num_files}): {filename}")
-        process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+        process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes)
 
     save_to_csv(unique_sample_dataframes, directory_name)
 
