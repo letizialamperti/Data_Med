@@ -166,12 +166,12 @@ def main():
     logging.info(f"All Filenames: {all_filenames}, num_files : {num_files}")
 
     for i, filename in tqdm(enumerate(all_filenames), desc="Processing R1 files", total=num_files):
-    if "_R1.fastq.gz" not in filename:
-        # Skip files that are not R1 files
-        continue
+        if "_R1.fastq.gz" not in filename:
+            # Skip files that are not R1 files
+            continue
 
-    logging.info(f"Processing R1 file ({i+1}/{num_files}): {filename}")
-    process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+        logging.info(f"Processing R1 file ({i+1}/{num_files}): {filename}")
+        process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, directory_name)
 
