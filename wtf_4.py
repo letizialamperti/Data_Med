@@ -70,8 +70,10 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
     # Use the mapping to get the cleaned-up version
     unique_sample_name = sample_name_mapping.get(sample_name, sample_name)
+    logging.info(f"Original sample name: {sample_name}, Cleaned-up sample name: {unique_sample_name}")
 
     if any(unique_sample_name.lower().startswith(prefix) for prefix in samples_to_exclude):
+        logging.info(f"Skipping {filename} for {unique_sample_name} (excluded prefix).")
         return
 
     if unique_sample_name not in unique_sample_dataframes:
@@ -99,6 +101,8 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
                     warnings.warn("ID of reverse read could not be matched to any forward read.")
     except Exception as e:
         logging.warning(f"Error processing file {filename}: {str(e)}")
+
+    logging.info(f"Processed {filename} for {unique_sample_name}. Data: {unique_sample_dataframes[unique_sample_name]}")
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
