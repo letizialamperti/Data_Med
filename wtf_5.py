@@ -77,10 +77,10 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
-        forward_file = directory / f"{filename[:-10]}_R1.fastq.gz"
+        forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
         print(forward_file.exists())
 
-        reverse_file = directory / f"{filename[:-10]}_R2.fastq.gz"
+        reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
         print(reverse_file.exists())
 
         try:
@@ -165,9 +165,13 @@ def main():
     unique_sample_dataframes = {}
     logging.info(f"All Filenames: {all_filenames}, num_files : {num_files}")
 
-    for i, filename in tqdm(enumerate(all_filenames), desc="Processing files", total=num_files):
-        logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
-        process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+    for i, filename in tqdm(enumerate(all_filenames), desc="Processing R1 files", total=num_files):
+    if "_R1.fastq.gz" not in filename:
+        # Skip files that are not R1 files
+        continue
+
+    logging.info(f"Processing R1 file ({i+1}/{num_files}): {filename}")
+    process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, directory_name)
 
