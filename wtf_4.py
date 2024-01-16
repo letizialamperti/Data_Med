@@ -102,7 +102,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
-    for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
+    for unique_sample_name, data in unique_sample_dataframes.items():
         try:
             df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
 
@@ -122,6 +122,7 @@ def save_to_csv(unique_sample_dataframes, directory):
             logging.info(f"CSV saved for {unique_sample_name}")
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
+
 
 
 
@@ -150,7 +151,7 @@ def main():
 
     unique_sample_dataframes = {}
 
-    for i in range(num_files):
+    for i in tqdm(range(num_files)):
         process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, store_dir)
