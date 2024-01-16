@@ -102,15 +102,14 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
-
+    
     for unique_sample_name, data in unique_sample_dataframes.items():
         try:
-            df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
+            df = pd.DataFrame(data={'Forward': list(data['seqs_forward']), 'Reverse': list(data['seqs_reverse'])}, index=list(data['ids']))
 
             # Debugging statements
             logging.info(f"CSV DataFrame size for {unique_sample_name}: {df.shape}")
 
-            # Use the directory name as the folder and the unique sample name as the CSV filename
             store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / directory
             store_dir.mkdir(parents=True, exist_ok=True)
             save_file = store_dir / f'{unique_sample_name}.csv'
@@ -124,7 +123,6 @@ def save_to_csv(unique_sample_dataframes, directory):
             logging.info(f"CSV saved for {unique_sample_name}")
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
-
 
 
 
