@@ -158,7 +158,7 @@ def main():
         logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
         process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
-    save_to_csv(unique_sample_dataframes, store_dir)
+    save_to_csv(unique_sample_dataframes, directory_name)
 
 if __name__ == "__main__":
     main()
