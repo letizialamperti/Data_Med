@@ -126,6 +126,7 @@ def main():
 
     directory_name = sys.argv[1]
     fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
+    store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') 
 
     excel_file = locate_excel_file(fastq_dir)
     if excel_file is None:
