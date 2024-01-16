@@ -63,7 +63,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
-    unique_tags = run_metadata['TAG'].unique()
+    unique_tags = run_metadata['TAG']
 
     for idx, row in run_metadata.iterrows():
         # Get the sample name from each row
