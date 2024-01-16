@@ -9,6 +9,10 @@ from Bio import SeqIO
 from pathlib import Path
 from tqdm.notebook import tqdm
 
+def read_filename_list(filename):
+    with open(filename, 'r') as file:
+        return [line.strip() for line in file]
+
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
