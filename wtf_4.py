@@ -102,14 +102,19 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
 def save_to_csv(unique_sample_dataframes, directory):
     logging.info("Saving CSVs")
-    for unique_sample_name, data in tqdm(list(unique_sample_dataframes.items()), desc="Saving CSVs"):
-        df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
-        store_dir = Path(directory) / 'MED_SAMPLES_CSV' / unique_sample_name
-        store_dir.mkdir(parents=True, exist_ok=True)
-        save_file = store_dir / 'output.csv'
-        df = df.dropna()
-        df = df.sample(frac=1)  # randomize
-        df.to_csv(save_file, index=False)
+    for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
+        try:
+            df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']}, index=data['ids'])
+            store_dir = Path(directory) / 'MED_SAMPLES_CSV' / unique_sample_name
+            store_dir.mkdir(parents=True, exist_ok=True)
+            save_file = store_dir / 'output.csv'
+            df = df.dropna()
+            df = df.sample(frac=1)  # randomize
+            df.to_csv(save_file, index=False)
+            logging.info(f"CSV saved for {unique_sample_name}")
+        except Exception as e:
+            logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
+
 
 def main():
     setup_logging()
