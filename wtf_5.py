@@ -78,25 +78,28 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
         forward_file = directory / f"{unique_sample_name}_R1.fastq.gz"
-        reverse_file = directory / f"{unique_sample_name}_R2.fastq.gz"
+        reverse_file = directory / f"{unique_sample_name}_R2.fastq.gz"# ...
 
-        try:
-            with gzip.open(forward_file, 'rt') as handle:
-                for record in SeqIO.parse(handle, format='fastq'):
-                    id = record.id
-                    seq = record.seq.lower()
-                    if any(tag in id for tag in unique_tags):
-                        unique_sample_dataframes[unique_sample_name]['ids'].add(id)
-                        unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
+    try:
+        with gzip.open(forward_file, 'rt') as handle:
+            for record in SeqIO.parse(handle, format='fastq'):
+                id = record.id
+                seq = record.seq.lower()
+                if any(tag in id for tag in unique_tags):
+                    unique_sample_dataframes[unique_sample_name]['ids'].add(id)
+                    unique_sample_dataframes[unique_sample_name]['seqs_forward'].append(str(seq))
+    
+    with gzip.open(reverse_file, 'rt') as handle:
+        for record in SeqIO.parse(handle, format='fastq'):
+            id = record.id
+            seq = record.seq.lower()
+            if id in unique_sample_dataframes[unique_sample_name]['ids']:
+                unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
+            else:
+                warnings.warn("ID of reverse read could not be matched to any forward read.")
 
-            with gzip.open(reverse_file, 'rt') as handle:
-                for record in SeqIO.parse(handle, format='fastq'):
-                    id = record.id
-                    seq = record.seq.lower()
-                    if id in unique_sample_dataframes[unique_sample_name]['ids']:
-                        unique_sample_dataframes[unique_sample_name]['seqs_reverse'].append(str(seq))
-                    else:
-                        warnings.warn("ID of reverse read could not be matched to any forward read.")
+
+
         except Exception as e:
             logging.warning(f"Error processing file {filename}: {str(e)}")
 
