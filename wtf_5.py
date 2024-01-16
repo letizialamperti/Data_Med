@@ -78,10 +78,12 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
         forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
-        print(forward_file.exists())
-
         reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
-        print(reverse_file.exists())
+
+        if not forward_file.exists() or not reverse_file.exists():
+            error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
+            logging.error(error_message)
+            raise FileNotFoundError(error_message)
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
@@ -106,6 +108,9 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
         # Debugging statement
         logging.info(f"Processed file for {unique_sample_name}. Found {len(unique_sample_dataframes[unique_sample_name]['ids'])} unique IDs.")
+
+    logging.info("Finished processing: %s", filename)
+
 
     logging.info("Finished processing: %s", filename)
 
