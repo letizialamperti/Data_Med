@@ -78,7 +78,10 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
 
         forward_file = directory / f"{filename[:-10]}_R1.fastq.gz"
+        print(forward_file.exists())
+
         reverse_file = directory / f"{filename[:-10]}_R2.fastq.gz"
+        print(reverse_file.exists())
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
