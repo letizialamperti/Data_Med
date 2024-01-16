@@ -40,13 +40,23 @@ def load_metadata(excel_file):
 
 def create_sample_name_mapping(run_metadata):
     sample_name_mapping = {}
-    for original_sample_name in run_metadata['SAMPLE'].unique():
+    for _, row in run_metadata.iterrows():
+        original_sample_name = row['SAMPLE']
         cleaned_up_sample_name = re.sub(r'_\d+', '', original_sample_name)
-        sample_name_mapping[original_sample_name] = cleaned_up_sample_name
+        tag = row['TAG']  # Assuming there is a 'TAG' column in your metadata
+        sample_name_mapping[original_sample_name] = {'cleaned_up_name': cleaned_up_sample_name, 'tag': tag}
     return sample_name_mapping
 
 def process_file(directory, filename, reference_df, samples_to_exclude, unique_sample_dataframes, sample_name_mapping):
     logging.info("Processing: %s", filename)
+
+    forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
+    reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
+    
+    if not forward_file.exists() or not reverse_file.exists():
+            error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
+            logging.error(error_message)
+            raise FileNotFoundError(error_message)
 
     run_name_match = re.search(r'_(.{8})_[R12]', filename)
     if not run_name_match:
@@ -63,7 +73,7 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
         logging.warning("No metadata found for the current RUN.")
         return
 
-    unique_tags = run_metadata['TAG'].unique()
+    #unique_tags = run_metadata['TAG'].unique()
 
     for idx, row in run_metadata.iterrows():
         # Get the sample name from each row
@@ -76,14 +86,6 @@ def process_file(directory, filename, reference_df, samples_to_exclude, unique_s
 
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'ids': set(), 'seqs_forward': [], 'seqs_reverse': []}
-
-        forward_file = directory / f"{filename[:-12]}_R1.fastq.gz"
-        reverse_file = directory / f"{filename[:-12]}_R2.fastq.gz"
-
-        if not forward_file.exists() or not reverse_file.exists():
-            error_message = f"Error: One or both of the FASTQ files do not exist for {filename}."
-            logging.error(error_message)
-            raise FileNotFoundError(error_message)
 
         try:
             with gzip.open(forward_file, 'rt') as handle:
