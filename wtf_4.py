@@ -146,17 +146,16 @@ def main():
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
     all_filenames = read_filename_list(filename_list_path)
-    
+
     # Define num_files after reading the filenames
     num_files = len(all_filenames)
 
     unique_sample_dataframes = {}
     logging.info(f"All Filenames: {all_filenames}")
 
-
     for i, filename in enumerate(all_filenames):
-    logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
-    process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
+        logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
+        process_file(fastq_dir, filename, reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, store_dir)
 
