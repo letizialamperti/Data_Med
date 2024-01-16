@@ -122,6 +122,7 @@ def save_to_csv(unique_sample_dataframes, directory):
             logging.info(f"CSV saved for {unique_sample_name}")
         except Exception as e:
             logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
+            
 
 
 
@@ -150,8 +151,11 @@ def main():
     num_files = len(all_filenames)
 
     unique_sample_dataframes = {}
+    logging.info(f"All Filenames: {all_filenames}")
+
 
     for i in tqdm(range(num_files)):
+        logging.info(f"Processing file: {all_filenames[i]}")
         process_file(fastq_dir, all_filenames[i], reference_df, ['other', 'OTHER', 'Other'], unique_sample_dataframes, sample_name_mapping)
 
     save_to_csv(unique_sample_dataframes, store_dir)
