@@ -112,26 +112,34 @@ def save_to_csv(unique_sample_dataframes, directory):
     
     for unique_sample_name, data in unique_sample_dataframes.items():
         try:
-            df = pd.DataFrame(data={'Forward': list(data['seqs_forward']), 'Reverse': list(data['seqs_reverse'])}, index=list(data['ids']))
+            # Extract data from the 'tags' dictionary
+            tags_data = data.get('tags', {})
+            
+            # Create an empty DataFrame to store combined data from all tags
+            combined_df = pd.DataFrame(columns=['Forward', 'Reverse'])
+
+            # Iterate through each tag and append data to the combined DataFrame
+            for tag, tag_data in tags_data.items():
+                df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'], 'Reverse': tag_data['seqs_reverse']})
+                combined_df = combined_df.append(df, ignore_index=True)
 
             # Debugging statements
-            logging.info(f"CSV DataFrame size for {unique_sample_name}: {df.shape}")
+            logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
 
+            # Save the combined DataFrame to a CSV file
             store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / directory
             store_dir.mkdir(parents=True, exist_ok=True)
             save_file = store_dir / f'{unique_sample_name}.csv'
 
             # Debugging statements
-            logging.info(f"Saving CSV for {unique_sample_name} to {save_file}")
+            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
 
-            df = df.dropna()
-            df = df.sample(frac=1)  # randomize
-            df.to_csv(save_file, index=False)
-            logging.info(f"CSV saved for {unique_sample_name}")
+            combined_df = combined_df.dropna()
+            combined_df = combined_df.sample(frac=1)  # randomize
+            combined_df.to_csv(save_file, index=False)
+            logging.info(f"Combined CSV saved for {unique_sample_name}")
         except Exception as e:
-            logging.error(f"Error saving CSV for {unique_sample_name}: {str(e)}")
-
-
+            logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
 
 
 def main():
