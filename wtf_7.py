@@ -230,7 +230,6 @@ def main():
 
         process_file(fastq_dir, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file)
 
-    print(f"{unique_sample_dataframes}")
 
     save_to_csv(unique_sample_dataframes, directory_name)
 
