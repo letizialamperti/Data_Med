@@ -75,8 +75,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         # Use the mapping to get the cleaned-up version of the sample name
         unique_sample_name = extract_base_sample_name(sample_name)
 
-        # Skip samples based on exclusion criteria (no need to check, as we're including all samples)
-
         # Initialize data structures if necessary
         if unique_sample_name not in unique_sample_dataframes:
             unique_sample_dataframes[unique_sample_name] = {'tags': {tag: {'seqs_forward': [], 'seqs_reverse': []}}}
@@ -153,14 +151,13 @@ def main():
         exit_with_error("Excel file not found. Exiting.")
 
     reference_df = load_metadata(excel_file)
+    
+    # Modify: Remove entries with specified sample prefixes
+    samples_to_exclude = ['other', 'OTHER', 'Other']
+    reference_df = reference_df[~reference_df['SAMPLE'].str.lower().str.startswith(tuple(samples_to_exclude))]
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
-    try:
-        with open(filename_list_path, 'r') as file:
-            all_filenames = [line.strip() for line in file]
-    except Exception as e:
-        exit_with_error(f"Error reading filename list: {str(e)}")
-
+    all_filenames = read_filename_list(filename_list_path)
 
     # Define num_files after reading the filenames
     num_files = len(all_filenames)
@@ -182,12 +179,10 @@ def main():
     logging.info("Initialized unique_sample_dataframes with all samples from reference_df.")
 
     # Process R1 files and store data in unique_sample_dataframes
-    for i, filename in tqdm(enumerate(all_filenames), desc="Processing files", total=num_files):
+    for i, filename in tqdm(enumerate(all_filenames), desc="Processing R1 files", total=num_files):
         if "_R1.fastq.gz" not in filename:
             # Skip files that are not R1 files
             continue
-
-        logging.info(f"Processing file ({i+1}/{num_files}): {filename}")
 
         # Process the forward and reverse FASTQ files directly within the loop
         forward_file = fastq_dir / f"{filename[:-12]}_R1.fastq.gz"
