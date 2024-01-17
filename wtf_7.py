@@ -103,8 +103,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     try:
                         forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
                         reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
-                        print(f"forward_record.seq.lower MAREMMA: {forward_record.seq.lower()}")
-                        print(f"reverse_record.seq.lower MAREMMA CANE: {reverse_record.seq.lower()}")
+       
     
                         # Extract tags using the new function
                         forward_tag = get_tag(str(forward_seq))
@@ -132,11 +131,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     except Exception as e:
         logging.warning(f"Error processing file {filename}: {str(e)}")
     
-
-
-
-
-
 
 def save_to_csv(unique_sample_dataframes, directory_name):
     logging.info("Saving CSVs")
