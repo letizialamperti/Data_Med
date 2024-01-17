@@ -115,8 +115,8 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     reverse_tag = get_sample_and_clipped_seq(str(reverse_seq))
 
                     # Check if any of the tags for unique_sample_names is present in the record IDs
-                    matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
-                    matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
+                    matching_tags_forward = [matching_tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
+                    matching_tags_reverse = [matching_tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
 
                     # If matching_tags_forward is not empty, process the forward record
                     if matching_tags_forward:
@@ -130,6 +130,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     except Exception as e:
         logging.warning(f"Error processing file {filename}: {str(e)}")
+
 
 
 
