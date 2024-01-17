@@ -121,7 +121,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
 
 
-                except NameError as e:
+        except NameError as e:
                     print(f"Error processing record: {str(e)}")
                     continue
 
