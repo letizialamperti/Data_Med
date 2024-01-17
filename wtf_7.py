@@ -102,9 +102,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Finished processing: %s", filename)
 
 
-The `save_to_csv` function and the `main` function need a small modification to correctly extract forward and reverse sequences from `unique_sample_dataframes`. The modified `save_to_csv` function and the relevant part of the `main` function are provided below:
-
-```python
 def save_to_csv(unique_sample_dataframes, directory_name):
     logging.info("Saving CSVs")
 
@@ -195,5 +192,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
+
 
