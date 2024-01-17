@@ -136,20 +136,24 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir.mkdir(parents=True, exist_ok=True)
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
+        print(f"{unique_sample_name}")
         try:
             # Create a DataFrame with forward and reverse sequences for all tags
-            combined_df = pd.DataFrame()
+            combined_df = pd.DataFrame(columns=['Forward', 'Reverse'])
     
             for tag, tag_data in data['tags'].items():
+                print(f"{tag}")
                 tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
                                              'Reverse': tag_data['seqs_reverse']})
+
+                print(f"{tag_df.shape}")
     
                 # Check if tag_df is empty, skip the tag if it is
                 if tag_df.empty:
                     logging.warning(f"DataFrame is empty for tag {tag} in {unique_sample_name}. Skipping.")
                     continue
     
-                combined_df = pd.concat([combined_df, tag_df])
+                combined_df = combined_df.append(tag_df, ignore_index=True)
     
                 # Debugging statements to print lengths
                 logging.info(f"Tag: {tag}, Forward Length: {len(tag_data['seqs_forward'])}, Reverse Length: {len(tag_data['seqs_reverse'])}")
