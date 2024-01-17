@@ -155,7 +155,12 @@ def main():
     reference_df = load_metadata(excel_file)
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
-    all_filenames = read_filename_list(filename_list_path)
+    try:
+        with open(filename_list_path, 'r') as file:
+            all_filenames = [line.strip() for line in file]
+    except Exception as e:
+        exit_with_error(f"Error reading filename list: {str(e)}")
+
 
     # Define num_files after reading the filenames
     num_files = len(all_filenames)
