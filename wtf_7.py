@@ -67,7 +67,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         return
 
     # Get unique_sample_names present in the run_metadata
-    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name))
+    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name)).unique()
 
     # Get tags associated with the unique_sample_names
     tags_for_unique_sample_names = {}
@@ -110,27 +110,35 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
+            # Initialize lists to store all forward and reverse sequences
+            all_forward_seqs = []
+            all_reverse_seqs = []
+
             for tag, tag_data in data['tags'].items():
-                # Create a DataFrame with forward and reverse sequences
-                combined_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
-                                                 'Reverse': tag_data['seqs_reverse']})
+                # Extend the lists with sequences from the current tag
+                all_forward_seqs.extend(tag_data['seqs_forward'])
+                all_reverse_seqs.extend(tag_data['seqs_reverse'])
 
-                # Debugging statements
-                logging.info(f"Combined CSV DataFrame size for {unique_sample_name} ({tag}): {combined_df.shape}")
+            # Create a DataFrame with all forward and reverse sequences
+            combined_df = pd.DataFrame(data={'Forward': all_forward_seqs, 'Reverse': all_reverse_seqs})
 
-                # Save the combined DataFrame to a CSV file
-                save_file = store_dir / f'{unique_sample_name}_{tag}.csv'
+            # Debugging statements
+            logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
 
-                # Debugging statements
-                logging.info(f"Saving combined CSV for {unique_sample_name} ({tag}) to {save_file}")
+            # Save the combined DataFrame to a CSV file
+            save_file = store_dir / f'{unique_sample_name}.csv'
 
-                combined_df = combined_df.dropna()
-                combined_df = combined_df.sample(frac=1)  # randomize
-                combined_df.to_csv(save_file, index=False)
-                logging.info(f"Combined CSV saved for {unique_sample_name} ({tag})")
+            # Debugging statements
+            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
+
+            combined_df = combined_df.dropna()
+            combined_df = combined_df.sample(frac=1)  # randomize
+            combined_df.to_csv(save_file, index=False)
+            logging.info(f"Combined CSV saved for {unique_sample_name}")
 
         except Exception as e:
             logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+
 
 
 def main():
