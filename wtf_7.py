@@ -76,11 +76,11 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     try:
         # Process both forward and reverse FASTQ files
-        for forward_file, reverse_file in zip([forward_file, reverse_file], [reverse_file, forward_file]):
-            with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
-                for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
-                    forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
-                    reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
+        # Process both forward and reverse FASTQ files
+        with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
+            for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
+                forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
+                reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
 
                     # Check if any of the tags for unique_sample_names is present in the record IDs
                     matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if any(t in forward_id for t in tags)]
