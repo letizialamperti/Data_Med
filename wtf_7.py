@@ -67,7 +67,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         return
 
     # Get unique_sample_names present in the run_metadata
-    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name)).unique()
+    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name))
 
     # Get tags associated with the unique_sample_names
     tags_for_unique_sample_names = {}
