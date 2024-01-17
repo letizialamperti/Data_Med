@@ -103,6 +103,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
                     reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
                     print(f"forward_record.seq.lower MAREMMA: {forward_record.seq.lower()}")
+                     print(f" reverse_record.seq.lower MAREMMA CANE: { reverse_record.seq.lower()}")
     
                     # Extract tags using the new function
         
