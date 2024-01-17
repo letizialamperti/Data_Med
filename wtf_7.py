@@ -45,7 +45,7 @@ def load_metadata(excel_file):
 
 def extract_base_sample_name(sample_name):
     return re.sub(r'_\d+$', '', sample_name)
-
+    
 def process_file(directory, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file):
     logging.info("Processing: %s", filename)
 
@@ -66,46 +66,31 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         logging.warning("No metadata found for the current RUN.")
         return
 
-    # Iterate through each row in the filtered metadata for the current RUN
-    for idx, row in run_metadata.iterrows():
-        # Get the sample name and the respective tag from each row
-        sample_name = row['SAMPLE']
-        tag = row['TAG']
+    # Get unique_sample_names present in the run_metadata
+    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name))
 
-        # Use the mapping to get the cleaned-up version of the sample name
-        unique_sample_name = extract_base_sample_name(sample_name)
+    # Get tags associated with the unique_sample_names
+    tags_for_unique_sample_names = {}
+    for unique_sample_name in unique_sample_names_in_metadata:
+        tags_for_unique_sample_names[unique_sample_name] = unique_sample_dataframes[unique_sample_name]['tags'].keys()
 
-        # Initialize data structures if necessary
-        if unique_sample_name not in unique_sample_dataframes:
-            unique_sample_dataframes[unique_sample_name] = {'tags': {tag: {'seqs_forward': [], 'seqs_reverse': []}}}
-        elif tag not in unique_sample_dataframes[unique_sample_name]['tags']:
-            unique_sample_dataframes[unique_sample_name]['tags'][tag] = {'seqs_forward': [], 'seqs_reverse': []}
+    # Iterate through each row in both forward and reverse FASTQ files
+    for file in [forward_file, reverse_file]:
+        with gzip.open(file, 'rt') as handle:
+            for record in SeqIO.parse(handle, format='fastq'):
+                record_id = record.id
+                record_seq = record.seq.lower()
 
-        try:
-            # Process the forward FASTQ file
-            with gzip.open(forward_file, 'rt') as forward_handle:
-                for forward_record in SeqIO.parse(forward_handle, format='fastq'):
-                    forward_id = forward_record.id
-                    forward_seq = forward_record.seq.lower()
+                # Check if any of the tags for unique_sample_names is present in the record ID
+                matching_tags = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if any(t in record_id for t in tags)]
 
-                    # Check if the tag is in the ID
-                    if tag in forward_id:
-                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_forward'].append(str(forward_seq))
-
-            # Process the reverse FASTQ file
-            with gzip.open(reverse_file, 'rt') as reverse_handle:
-                for reverse_record in SeqIO.parse(reverse_handle, format='fastq'):
-                    reverse_id = reverse_record.id
-                    reverse_seq = reverse_record.seq.lower()
-
-                    # Check if the tag is in the ID
-                    if tag in reverse_id:
-                        unique_sample_dataframes[unique_sample_name]['tags'][tag]['seqs_reverse'].append(str(reverse_seq))
-
-        except Exception as e:
-            logging.warning(f"Error processing file {filename}: {str(e)}")
+                # If matching_tags is not empty, process the record
+                if matching_tags:
+                    for matching_tag in matching_tags:
+                        unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(record_seq))
 
     logging.info("Finished processing: %s", filename)
+
 
 def save_to_csv(unique_sample_dataframes, directory_name):
     logging.info("Saving CSVs")
