@@ -136,7 +136,7 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir.mkdir(parents=True, exist_ok=True)
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
-        print(f"{unique_sample_name}")
+        
         try:
             # Create a DataFrame with forward and reverse sequences for all tags
             combined_df = pd.DataFrame(columns=['Forward', 'Reverse'])
@@ -146,14 +146,25 @@ def save_to_csv(unique_sample_dataframes, directory_name):
                 tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
                                              'Reverse': tag_data['seqs_reverse']})
 
-                print(f"{tag_df.shape}")
+                # Print the lengths of 'Forward' and 'Reverse' sequences for debugging
+                print(f"{unique_sample_name} - {tag}: Forward length={len(tag_df['Forward'])}, Reverse length={len(tag_df['Reverse'])}")
+
     
                 # Check if tag_df is empty, skip the tag if it is
                 if tag_df.empty:
                     logging.warning(f"DataFrame is empty for tag {tag} in {unique_sample_name}. Skipping.")
                     continue
-    
+
+                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                             'Reverse': tag_data['seqs_reverse']})
+            
+                # Fill shorter sequences with 'N' to make them of equal length
+                max_length = max(tag_df['Forward'].str.len().max(), tag_df['Reverse'].str.len().max())
+                tag_df['Forward'] = tag_df['Forward'].apply(lambda x: x.ljust(max_length, 'N'))
+                tag_df['Reverse'] = tag_df['Reverse'].apply(lambda x: x.ljust(max_length, 'N'))
+            
                 combined_df = combined_df.append(tag_df, ignore_index=True)
+            
     
                 # Debugging statements to print lengths
                 logging.info(f"Tag: {tag}, Forward Length: {len(tag_data['seqs_forward'])}, Reverse Length: {len(tag_data['seqs_reverse'])}")
