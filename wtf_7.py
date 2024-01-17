@@ -43,11 +43,9 @@ def load_metadata(excel_file):
     except Exception as e:
         exit_with_error(f"Error loading metadata: {str(e)}")
         
-def get_sample_and_clipped_seq(seq: str) -> str:
+def get_tag(seq: str) -> str:
     f_primer = "acaccgcccgtcactct"
-    f_primer_rev = "agagtgacgggcggtgt"
     r_primer = "cttccggtacacttaccatg"
-    r_primer_rev = "catggtaagtgtaccggaag"
 
     f_primer_len = len(f_primer)
     r_primer_len = len(r_primer)
@@ -57,16 +55,10 @@ def get_sample_and_clipped_seq(seq: str) -> str:
     pos_r = seq[:35].find(r_primer)
 
     if pos_f >= 8:  # Forward primer found
-        pos_r_r = seq.find(r_primer_rev)
-        if pos_r_r > 0:
-            clipped_seq = seq[pos_f: pos_r_r + r_primer_len]  # Clip tag
-            tag = seq[pos_f - 8: pos_f]
+        tag = seq[pos_f - 8: pos_f]
 
     elif pos_r >= 8:  # Reverse primer found
-        pos_f_r = seq.find(f_primer_rev)
-        if pos_f_r > 0:
-            clipped_seq = seq[pos_r: pos_f_r + f_primer_len]  # Clip tag
-            tag = seq[pos_r - 8: pos_r]
+        tag = seq[pos_r - 8: pos_r]
 
     return tag
 
@@ -112,8 +104,8 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     
                     # Extract tags using the new function
         
-                    forward_tag = get_sample_and_clipped_seq(str(forward_record.seq.lower()))
-                    reverse_tag = get_sample_and_clipped_seq(str(reverse_record.seq.lower()))
+                    forward_tag = get_tag(str(forward_record.seq.lower()))
+                    reverse_tag = get_tag(str(reverse_record.seq.lower()))
     
                     print(f"Forward ID: {forward_id}, Forward Tag: {forward_tag}")
                     print(f"Reverse ID: {reverse_id}, Reverse Tag: {reverse_tag}")
