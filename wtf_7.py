@@ -112,7 +112,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                         if forward_tag is None or reverse_tag is None:
                             continue
 
-                        is_id_mach = forward_id == reverse_id
+                        is_id_match = forward_id == reverse_id
                              
                         print(f"{is_id_match}")
 
