@@ -93,7 +93,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     tags_for_unique_sample_names = {}
     for unique_sample_name in unique_sample_names_in_metadata:
         tags_for_unique_sample_names[unique_sample_name] = unique_sample_dataframes[unique_sample_name]['tags'].keys()
-        print(f"tags from metadata: {tags_for_unique_sample_names}")
+        
 
     try:
         # Process both forward and reverse FASTQ files
@@ -102,7 +102,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                 for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
                     forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
                     reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
-
+                    print(f"forward_record.seq.lower MAREMMA: {forward_record.seq.lower()}")
     
                     # Extract tags using the new function
         
