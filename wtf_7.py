@@ -114,7 +114,8 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
                         is_id_mach = forward_id == reverse_id
                              
-                        print('{is_id_mach}')
+                        print(f"{is_id_match}")
+
         
                         # Check if any of the tags for unique_sample_names is present in the record IDs
                         for unique_sample_name, tags in tags_for_unique_sample_names.items():
