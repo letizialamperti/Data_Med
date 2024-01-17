@@ -106,6 +106,14 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         
                     forward_tag = get_tag(str(forward_record.seq.lower()))
                     reverse_tag = get_tag(str(reverse_record.seq.lower()))
+
+                    # Handle the case where one tag is None
+                    if forward_tag is None:
+                        forward_tag = reverse_tag
+                    elif reverse_tag is None:
+                        reverse_tag = forward_tag
+
+                    
     
                     print(f"Forward ID: {forward_id}, Forward Tag: {forward_tag}")
                     print(f"Reverse ID: {reverse_id}, Reverse Tag: {reverse_tag}")
