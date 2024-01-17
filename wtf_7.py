@@ -97,25 +97,32 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     try:
         # Process both forward and reverse FASTQ files
-        with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
-            for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
-                try:
-                    forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
-                    reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
+        for forward_file, reverse_file in zip([forward_file], [reverse_file]):
+            with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
+                for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
+                    try:
+                        forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
+                        reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
+        
+                        # Extract tags using the new function
+                        forward_tag = get_tag(str(forward_seq))
+                        reverse_tag = get_tag(str(reverse_seq))
+        
+                        # Check if tags are None
+                        if forward_tag is None or reverse_tag is None:
+                            continue
+        
+                        # Check if any of the tags for unique_sample_names is present in the record IDs
+                        for unique_sample_name, tags in tags_for_unique_sample_names.items():
+                            if forward_tag in tags and reverse_tag in tags:
+                                # Append both forward and reverse sequences for the same record ID
+                                unique_sample_dataframes[unique_sample_name]['tags'][forward_tag]['seqs_forward'].append(str(forward_seq))
+                                unique_sample_dataframes[unique_sample_name]['tags'][reverse_tag]['seqs_reverse'].append(str(reverse_seq))
 
-                    # Extract tags using the new function
-                    forward_tag = get_tag(str(forward_seq))
-                    reverse_tag = get_tag(str(reverse_seq))
+            except NameError as e:
+                print(f"Error processing record: {str(e)}")
+                continue
 
-                    # Check if tags are None
-                    if forward_tag is None or reverse_tag is None:
-                        continue
-
-                    # Check if any of the tags for unique_sample_names is present in the record IDs
-                    for unique_sample_name, tags in tags_for_unique_sample_names.items():
-                        if forward_tag in tags and reverse_tag in tags:
-                            unique_sample_dataframes[unique_sample_name]['tags'][forward_tag]['seqs_forward'].append(str(forward_seq))
-                            unique_sample_dataframes[unique_sample_name]['tags'][reverse_tag]['seqs_reverse'].append(str(reverse_seq))
 
                 except NameError as e:
                     print(f"Error processing record: {str(e)}")
