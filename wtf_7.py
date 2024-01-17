@@ -143,8 +143,14 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     
             for tag, tag_data in data['tags'].items():
                 print(f"{tag}")
-                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
-                                             'Reverse': tag_data['seqs_reverse']})
+                # Find the common IDs between seqs_forward and seqs_reverse
+    
+                common_ids = set(tag_data['seqs_forward'].keys()) & set(tag_data['seqs_reverse'].keys())
+            
+                # Create a DataFrame with forward and reverse sequences for common IDs
+                tag_df = pd.DataFrame(data={'Forward': [tag_data['seqs_forward'][seq_id] for seq_id in common_ids],
+                                            'Reverse': [tag_data['seqs_reverse'][seq_id] for seq_id in common_ids]})
+
 
                 # Print the lengths of 'Forward' and 'Reverse' sequences for debugging
                 print(f"{unique_sample_name} - {tag}: Forward length={len(tag_df['Forward'])}, Reverse length={len(tag_df['Reverse'])}")
@@ -158,10 +164,6 @@ def save_to_csv(unique_sample_dataframes, directory_name):
                 tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
                                              'Reverse': tag_data['seqs_reverse']})
             
-                # Fill shorter sequences with 'N' to make them of equal length
-                max_length = max(tag_df['Forward'].str.len().max(), tag_df['Reverse'].str.len().max())
-                tag_df['Forward'] = tag_df['Forward'].apply(lambda x: x.ljust(max_length, 'N'))
-                tag_df['Reverse'] = tag_df['Reverse'].apply(lambda x: x.ljust(max_length, 'N'))
             
                 combined_df = combined_df.append(tag_df, ignore_index=True)
             
