@@ -113,16 +113,24 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     # Extract tags using the new function
                     forward_tag = get_sample_and_clipped_seq(str(forward_seq))
                     reverse_tag = get_sample_and_clipped_seq(str(reverse_seq))
-
+                    
+                    # Initialize matching_tags_forward and matching_tags_reverse
+                    matching_tags_forward = []
+                    matching_tags_reverse = []
+                    
                     # Check if any of the tags for unique_sample_names is present in the record IDs
-                    matching_tags_forward = [matching_tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
-                    matching_tags_reverse = [matching_tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
-
+                    for unique_sample_name, tags in tags_for_unique_sample_names.items():
+                        if forward_tag in tags:
+                            matching_tags_forward.extend(tags)
+                    
+                        if reverse_tag in tags:
+                            matching_tags_reverse.extend(tags)
+                    
                     # If matching_tags_forward is not empty, process the forward record
                     if matching_tags_forward:
                         for matching_tag in matching_tags_forward:
                             unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
-
+                    
                     # If matching_tags_reverse is not empty, process the reverse record
                     if matching_tags_reverse:
                         for matching_tag in matching_tags_reverse:
