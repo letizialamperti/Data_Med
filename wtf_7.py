@@ -11,13 +11,6 @@ from tqdm.notebook import tqdm
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-def read_filename_list(filename):
-    with open(filename, 'r') as file:
-        return [line.strip() for line in file]
-
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def exit_with_error(message):
     logging.error(message)
@@ -43,7 +36,6 @@ def load_metadata(excel_file):
 
 def extract_base_sample_name(sample_name):
     return re.sub(r'_\d+$', '', sample_name)
-
 
 def process_file(directory, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file):
     logging.info("Processing: %s", filename)
@@ -78,10 +70,8 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
         # Initialize data structures if necessary
         if unique_sample_name not in unique_sample_dataframes:
-            logging.warning(f"Sample {unique_sample_name} not found in initialized data structure.")
-            continue  # Skip if the sample is not in the initialized structure
-
-        if tag not in unique_sample_dataframes[unique_sample_name]['tags']:
+            unique_sample_dataframes[unique_sample_name] = {'tags': {tag: {'seqs_forward': [], 'seqs_reverse': []}}}
+        elif tag not in unique_sample_dataframes[unique_sample_name]['tags']:
             unique_sample_dataframes[unique_sample_name]['tags'][tag] = {'seqs_forward': [], 'seqs_reverse': []}
 
         try:
@@ -110,7 +100,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     logging.info("Finished processing: %s", filename)
 
-
 def save_to_csv(unique_sample_dataframes, directory_name):
     logging.info("Saving CSVs")
 
@@ -120,7 +109,8 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
             # Create a DataFrame with forward and reverse sequences
-            combined_df = pd.DataFrame(data={'Forward': data['seqs_forward'], 'Reverse': data['seqs_reverse']})
+            combined_df = pd.DataFrame(data={'Forward': data['tags'][tag]['seqs_forward'],
+                                             'Reverse': data['tags'][tag]['seqs_reverse']})
 
             # Debugging statements
             logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
@@ -138,8 +128,6 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
         except Exception as e:
             logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
-
-
 
 def main():
     setup_logging()
