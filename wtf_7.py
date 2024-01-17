@@ -114,22 +114,19 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     print(f"Reverse ID: {reverse_id}, Reverse Tag: {reverse_tag}")
     
                     # Check if any of the tags for unique_sample_names is present in the record IDs
-                    matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
-                    matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
-    
-                    # Print for debugging
-                    print(f"Matching Tags Forward: {matching_tags_forward}")
-                    print(f"Matching Tags Reverse: {matching_tags_reverse}")
-    
-                    # If matching_tags_forward is not empty, process the forward record
-                    if matching_tags_forward:
-                        for matching_tag in matching_tags_forward:
-                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
-    
-                    # If matching_tags_reverse is not empty, process the reverse record
-                    if matching_tags_reverse:
-                        for matching_tag in matching_tags_reverse:
-                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
+                    # Check if any of the tags for unique_sample_names is present in the record IDs
+                    if forward_tag is not None:
+                        matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
+                        if matching_tags_forward:
+                            for matching_tag in matching_tags_forward:
+                                unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
+                    
+                    if reverse_tag is not None:
+                        matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
+                        if matching_tags_reverse:
+                            for matching_tag in matching_tags_reverse:
+                                unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
+                                
     
     except Exception as e:
         logging.warning(f"Error processing file {filename}: {str(e)}")
