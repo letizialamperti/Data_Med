@@ -143,13 +143,14 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     
             for tag, tag_data in data['tags'].items():
                 print(f"{tag}")
-                # Find the common IDs between seqs_forward and seqs_reverse
+               
     
-                common_ids = set(tag_data['seqs_forward'].keys()) & set(tag_data['seqs_reverse'].keys())
+                # Find the common indices between seqs_forward and seqs_reverse
+                common_indices = set(range(len(tag_data['seqs_forward']))) & set(range(len(tag_data['seqs_reverse'])))
             
-                # Create a DataFrame with forward and reverse sequences for common IDs
-                tag_df = pd.DataFrame(data={'Forward': [tag_data['seqs_forward'][seq_id] for seq_id in common_ids],
-                                            'Reverse': [tag_data['seqs_reverse'][seq_id] for seq_id in common_ids]})
+                # Create a DataFrame with forward and reverse sequences for common indices
+                tag_df = pd.DataFrame(data={'Forward': [tag_data['seqs_forward'][idx] for idx in common_indices],
+                                            'Reverse': [tag_data['seqs_reverse'][idx] for idx in common_indices]})
 
 
                 # Print the lengths of 'Forward' and 'Reverse' sequences for debugging
