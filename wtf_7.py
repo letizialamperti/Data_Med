@@ -22,6 +22,15 @@ def locate_excel_file(directory):
             return Path(directory) / entry
     return None
 
+def read_filename_list(filename_list_path):
+    try:
+        with open(filename_list_path, 'r') as file:
+            filenames = [line.strip() for line in file]
+        return filenames
+    except Exception as e:
+        exit_with_error(f"Error reading filename list: {str(e)}")
+
+
 def load_metadata(excel_file):
     try:
         reference_df = pd.read_excel(excel_file)
