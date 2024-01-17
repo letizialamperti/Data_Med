@@ -102,6 +102,9 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Finished processing: %s", filename)
 
 
+The `save_to_csv` function and the `main` function need a small modification to correctly extract forward and reverse sequences from `unique_sample_dataframes`. The modified `save_to_csv` function and the relevant part of the `main` function are provided below:
+
+```python
 def save_to_csv(unique_sample_dataframes, directory_name):
     logging.info("Saving CSVs")
 
@@ -110,26 +113,28 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
-            # Create a DataFrame with forward and reverse sequences
-            combined_df = pd.DataFrame(data={'Forward': data['tags'][tag]['seqs_forward'],
-                                             'Reverse': data['tags'][tag]['seqs_reverse']})
+            for tag, tag_data in data['tags'].items():
+                # Create a DataFrame with forward and reverse sequences
+                combined_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                                 'Reverse': tag_data['seqs_reverse']})
 
-            # Debugging statements
-            logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
+                # Debugging statements
+                logging.info(f"Combined CSV DataFrame size for {unique_sample_name} ({tag}): {combined_df.shape}")
 
-            # Save the combined DataFrame to a CSV file
-            save_file = store_dir / f'{unique_sample_name}.csv'
+                # Save the combined DataFrame to a CSV file
+                save_file = store_dir / f'{unique_sample_name}_{tag}.csv'
 
-            # Debugging statements
-            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
+                # Debugging statements
+                logging.info(f"Saving combined CSV for {unique_sample_name} ({tag}) to {save_file}")
 
-            combined_df = combined_df.dropna()
-            combined_df = combined_df.sample(frac=1)  # randomize
-            combined_df.to_csv(save_file, index=False)
-            logging.info(f"Combined CSV saved for {unique_sample_name}")
+                combined_df = combined_df.dropna()
+                combined_df = combined_df.sample(frac=1)  # randomize
+                combined_df.to_csv(save_file, index=False)
+                logging.info(f"Combined CSV saved for {unique_sample_name} ({tag})")
 
         except Exception as e:
             logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+
 
 def main():
     setup_logging()
@@ -158,7 +163,7 @@ def main():
     num_files = len(all_filenames)
 
     unique_sample_dataframes = {}
-    logging.info(f"All Filenames: {all_filenames}, num_files : {num_files}")
+    logging.info(f"All Filenames: {all_filenames}, num_files: {num_files}")
 
     # Iterate through each unique sample in reference_df and initialize the data structure
     for _, row in reference_df.iterrows():
@@ -186,5 +191,9 @@ def main():
         process_file(fastq_dir, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file)
 
     save_to_csv(unique_sample_dataframes, directory_name)
+
+
 if __name__ == "__main__":
     main()
+```
+
