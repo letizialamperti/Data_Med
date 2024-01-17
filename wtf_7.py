@@ -106,26 +106,29 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     print(f" reverse_record.seq.lower MAREMMA CANE: { reverse_record.seq.lower()}")
     
                     # Extract tags using the new function
-        
-                    forward_tag = get_tag((forward_record.seq.lower()))
-                    reverse_tag = get_tag((reverse_record.seq.lower()))                  
-    
-                    print(f"Forward ID: {forward_id}, Forward Tag: {forward_tag}")
-                    print(f"Reverse ID: {reverse_id}, Reverse Tag: {reverse_tag}")
-    
-                    # Check if any of the tags for unique_sample_names is present in the record IDs
-                    # Check if any of the tags for unique_sample_names is present in the record IDs
-                    if forward_tag is not None:
-                        matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
-                        if matching_tags_forward:
-                            for matching_tag in matching_tags_forward:
-                                unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
+                    # Extract tags using the new function
+                    forward_tag = get_tag(str(forward_seq))
+                    reverse_tag = get_tag(str(reverse_seq))
                     
-                    if reverse_tag is not None:
-                        matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
-                        if matching_tags_reverse:
-                            for matching_tag in matching_tags_reverse:
-                                unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
+                    # Check if tags are None
+                    if forward_tag is None or reverse_tag is None:
+                        continue
+                    
+                    # Debugging print statements
+                    print(f"Forward Tag: {forward_tag}")
+                    print(f"Reverse Tag: {reverse_tag}")
+                    
+                    # Check if any of the tags for unique_sample_names is present in the record IDs
+                    matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
+                    if matching_tags_forward:
+                        for matching_tag in matching_tags_forward:
+                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
+                    
+                    matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
+                    if matching_tags_reverse:
+                        for matching_tag in matching_tags_reverse:
+                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
+
                                 
     
     except Exception as e:
