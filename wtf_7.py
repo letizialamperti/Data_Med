@@ -136,44 +136,44 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir.mkdir(parents=True, exist_ok=True)
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
-    try:
-        # Create a DataFrame with forward and reverse sequences for all tags
-        combined_df = pd.DataFrame()
-
-        for tag, tag_data in data['tags'].items():
-            tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
-                                         'Reverse': tag_data['seqs_reverse']})
-
-            # Check if tag_df is empty, skip the tag if it is
-            if tag_df.empty:
-                logging.warning(f"DataFrame is empty for tag {tag} in {unique_sample_name}. Skipping.")
+        try:
+            # Create a DataFrame with forward and reverse sequences for all tags
+            combined_df = pd.DataFrame()
+    
+            for tag, tag_data in data['tags'].items():
+                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                             'Reverse': tag_data['seqs_reverse']})
+    
+                # Check if tag_df is empty, skip the tag if it is
+                if tag_df.empty:
+                    logging.warning(f"DataFrame is empty for tag {tag} in {unique_sample_name}. Skipping.")
+                    continue
+    
+                combined_df = pd.concat([combined_df, tag_df])
+    
+                # Debugging statements to print lengths
+                logging.info(f"Tag: {tag}, Forward Length: {len(tag_data['seqs_forward'])}, Reverse Length: {len(tag_data['seqs_reverse'])}")
+    
+            # Debugging statements
+            logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
+    
+            if combined_df.empty:
+                logging.warning(f"Combined DataFrame is empty for {unique_sample_name}. Skipping.")
                 continue
-
-            combined_df = pd.concat([combined_df, tag_df])
-
-            # Debugging statements to print lengths
-            logging.info(f"Tag: {tag}, Forward Length: {len(tag_data['seqs_forward'])}, Reverse Length: {len(tag_data['seqs_reverse'])}")
-
-        # Debugging statements
-        logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
-
-        if combined_df.empty:
-            logging.warning(f"Combined DataFrame is empty for {unique_sample_name}. Skipping.")
-            continue
-
-        # Save the combined DataFrame to a single CSV file
-        save_file = store_dir / f'{unique_sample_name}.csv'
-
-        # Debugging statements
-        logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
-
-        combined_df = combined_df.dropna()
-        combined_df = combined_df.sample(frac=1)  # randomize
-        combined_df.to_csv(save_file, index=False)
-        logging.info(f"Combined CSV saved for {unique_sample_name}")
-
-    except Exception as e:
-        logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+    
+            # Save the combined DataFrame to a single CSV file
+            save_file = store_dir / f'{unique_sample_name}.csv'
+    
+            # Debugging statements
+            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
+    
+            combined_df = combined_df.dropna()
+            combined_df = combined_df.sample(frac=1)  # randomize
+            combined_df.to_csv(save_file, index=False)
+            logging.info(f"Combined CSV saved for {unique_sample_name}")
+    
+        except Exception as e:
+            logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
 
 
 def main():
