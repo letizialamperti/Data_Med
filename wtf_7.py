@@ -119,9 +119,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                                 unique_sample_dataframes[unique_sample_name]['tags'][forward_tag]['seqs_forward'].append(str(forward_seq))
                                 unique_sample_dataframes[unique_sample_name]['tags'][reverse_tag]['seqs_reverse'].append(str(reverse_seq))
 
-            except NameError as e:
-                print(f"Error processing record: {str(e)}")
-                continue
 
 
                 except NameError as e:
