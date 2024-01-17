@@ -42,6 +42,34 @@ def load_metadata(excel_file):
         return reference_df
     except Exception as e:
         exit_with_error(f"Error loading metadata: {str(e)}")
+        
+def get_sample_and_clipped_seq(seq: str) -> str:
+    f_primer = "acaccgcccgtcactct"
+    f_primer_rev = "agagtgacgggcggtgt"
+    r_primer = "cttccggtacacttaccatg"
+    r_primer_rev = "catggtaagtgtaccggaag"
+
+    f_primer_len = len(f_primer)
+    r_primer_len = len(r_primer)
+
+    tag = None
+    pos_f = seq[:35].find(f_primer)
+    pos_r = seq[:35].find(r_primer)
+
+    if pos_f >= 8:  # Forward primer found
+        pos_r_r = seq.find(r_primer_rev)
+        if pos_r_r > 0:
+            clipped_seq = seq[pos_f: pos_r_r + r_primer_len]  # Clip tag
+            tag = seq[pos_f - 8: pos_f]
+
+    elif pos_r >= 8:  # Reverse primer found
+        pos_f_r = seq.find(f_primer_rev)
+        if pos_f_r > 0:
+            clipped_seq = seq[pos_r: pos_f_r + f_primer_len]  # Clip tag
+            tag = seq[pos_r - 8: pos_r]
+
+    return tag
+
 
 def extract_base_sample_name(sample_name):
     return re.sub(r'_\d+$', '', sample_name)
@@ -76,29 +104,33 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     try:
         # Process both forward and reverse FASTQ files
-        with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
-            for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
-                forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
-                reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
+        for forward_file, reverse_file in zip([forward_file], [reverse_file]):
+            with gzip.open(forward_file, 'rt') as forward_handle, gzip.open(reverse_file, 'rt') as reverse_handle:
+                for forward_record, reverse_record in zip(SeqIO.parse(forward_handle, format='fastq'), SeqIO.parse(reverse_handle, format='fastq')):
+                    forward_id, forward_seq = forward_record.id, forward_record.seq.lower()
+                    reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
 
-                # Check if any of the tags for unique_sample_names is present in the record IDs
-                matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if any(t in forward_id for t in tags)]
-                matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if any(t in reverse_id for t in tags)]
+                    # Extract tags using the new function
+                    forward_tag = get_sample_and_clipped_seq(str(forward_seq))
+                    reverse_tag = get_sample_and_clipped_seq(str(reverse_seq))
 
-                # If matching_tags_forward is not empty, process the forward record
-                if matching_tags_forward:
-                    for matching_tag in matching_tags_forward:
-                        unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
+                    # Check if any of the tags for unique_sample_names is present in the record IDs
+                    matching_tags_forward = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if forward_tag in tags]
+                    matching_tags_reverse = [tag for unique_sample_name, tags in tags_for_unique_sample_names.items() if reverse_tag in tags]
 
-                # If matching_tags_reverse is not empty, process the reverse record
-                if matching_tags_reverse:
-                    for matching_tag in matching_tags_reverse:
-                        unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
+                    # If matching_tags_forward is not empty, process the forward record
+                    if matching_tags_forward:
+                        for matching_tag in matching_tags_forward:
+                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_forward'].append(str(forward_seq))
+
+                    # If matching_tags_reverse is not empty, process the reverse record
+                    if matching_tags_reverse:
+                        for matching_tag in matching_tags_reverse:
+                            unique_sample_dataframes[unique_sample_name]['tags'][matching_tag]['seqs_reverse'].append(str(reverse_seq))
 
     except Exception as e:
         logging.warning(f"Error processing file {filename}: {str(e)}")
 
-    logging.info("Finished processing: %s", filename)
 
 
 def save_to_csv(unique_sample_dataframes, directory_name):
