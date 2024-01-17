@@ -111,8 +111,9 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                     reverse_id, reverse_seq = reverse_record.id, reverse_record.seq.lower()
     
                     # Extract tags using the new function
-                    forward_tag = get_sample_and_clipped_seq(str(forward_seq))
-                    reverse_tag = get_sample_and_clipped_seq(str(reverse_seq))
+        
+                    forward_tag = get_sample_and_clipped_seq(str(forward_record.seq.lower()))
+                    reverse_tag = get_sample_and_clipped_seq(str(reverse_record.seq.lower()))
     
                     print(f"Forward ID: {forward_id}, Forward Tag: {forward_tag}")
                     print(f"Reverse ID: {reverse_id}, Reverse Tag: {reverse_tag}")
