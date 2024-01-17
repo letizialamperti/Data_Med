@@ -141,22 +141,18 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
         try:
-            # Initialize lists to store all forward and reverse sequences
-            all_forward_seqs = []
-            all_reverse_seqs = []
+            # Create a DataFrame with forward and reverse sequences for all tags
+            combined_df = pd.DataFrame()
 
             for tag, tag_data in data['tags'].items():
-                # Extend the lists with sequences from the current tag
-                all_forward_seqs.extend(tag_data['seqs_forward'])
-                all_reverse_seqs.extend(tag_data['seqs_reverse'])
-
-            # Create a DataFrame with all forward and reverse sequences
-            combined_df = pd.DataFrame(data={'Forward': all_forward_seqs, 'Reverse': all_reverse_seqs})
+                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                             'Reverse': tag_data['seqs_reverse']})
+                combined_df = pd.concat([combined_df, tag_df])
 
             # Debugging statements
             logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
 
-            # Save the combined DataFrame to a CSV file
+            # Save the combined DataFrame to a single CSV file
             save_file = store_dir / f'{unique_sample_name}.csv'
 
             # Debugging statements
