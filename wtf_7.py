@@ -159,7 +159,9 @@ def save_to_csv(unique_sample_dataframes, directory_name):
                 logging.info(f"Combined CSV DataFrame size for {unique_sample_name} - {tag}: {tag_df.shape}")
 
                 # Append the current tag DataFrame to the combined DataFrame
-                combined_df = combined_df.append(tag_df, ignore_index=True)
+                # combined_df = combined_df.append(tag_df, ignore_index=True)
+        
+                combined_df = pd.concat([combined_df, tag_df], ignore_index=True)
 
             except Exception as e:
                 logging.error(f"Error creating DataFrame for {unique_sample_name} - {tag}: {str(e)}")
