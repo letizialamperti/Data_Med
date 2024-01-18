@@ -225,7 +225,7 @@ def main():
 
     # Process R1 files and store data in unique_sample_dataframes
     for i, filename in tqdm(enumerate(all_filenames), desc="Processing R1 files", total=num_files):
-        if "_R1.fastq.gz" not in filename:
+        if "_R1_001.fastq.gz" not in filename:
             # Skip files that are not R1 files
             continue
 
