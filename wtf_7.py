@@ -111,10 +111,11 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
                         # Check if tags are None
                         if forward_tag is None or reverse_tag is None:
                             continue
-
-
-
-        
+                        
+                        # Check if tags are different
+                        if forward_tag != reverse_tag:
+                            continue
+                        
                         # Check if any of the tags for unique_sample_names is present in the record IDs
                         for unique_sample_name, tags in tags_for_unique_sample_names.items():
                             if forward_tag in tags and reverse_tag in tags:
