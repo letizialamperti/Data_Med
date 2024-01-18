@@ -135,7 +135,7 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / directory_name
     store_dir.mkdir(parents=True, exist_ok=True)
 
-    for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
+for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
     combined_df = pd.DataFrame()  # Initialize combined_df for each unique sample
     
     for tag, tag_data in data['tags'].items():
@@ -174,6 +174,7 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
     except Exception as e:
         logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+
 
 
 def main():
