@@ -72,12 +72,6 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
 
     # Extract the RUN name from the filename using a regular expression
     run_name_match = re.search(r'^(.{8})', filename)
-    
-    if run_name_match:
-        extracted_string = run_name_match.group(1)
-        print(extracted_string)
-
-    
     if not run_name_match:
         logging.warning(f"Skipping {filename}: RUN name not found in filename.")
         return
@@ -236,8 +230,8 @@ def main():
             continue
 
         # Process the forward and reverse FASTQ files directly within the loop
-        forward_file = fastq_dir / f"{filename[:-12]}_R1.fastq.gz"
-        reverse_file = fastq_dir / f"{filename[:-12]}_R2.fastq.gz"
+        forward_file = fastq_dir / f"{filename[:-16]}_R1_001.fastq.gz"
+        reverse_file = fastq_dir / f"{filename[:-16]}_R2_001.fastq.gz"
 
         process_file(fastq_dir, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file)
 
