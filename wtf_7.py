@@ -136,62 +136,44 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir.mkdir(parents=True, exist_ok=True)
 
     for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
-        
+    combined_df = pd.DataFrame()  # Initialize combined_df for each unique sample
+    
+    for tag, tag_data in data['tags'].items():
+        forward_length = len(tag_data['seqs_forward'])
+        reverse_length = len(tag_data['seqs_reverse'])
+        print(f"{unique_sample_name} - {tag}: Forward length={forward_length}, Reverse length={reverse_length}")
+
+        # Check if lengths match
+        if forward_length != reverse_length:
+            print(f"Lengths mismatch for {unique_sample_name} - {tag}")
+            continue
+
         try:
-            # Create a DataFrame with forward and reverse sequences for all tags
-            combined_df = pd.DataFrame(columns=['Forward', 'Reverse'])
-    
-            for tag, tag_data in data['tags'].items():
-                print(f"{tag}")
-               
-    
-                # Find the common indices between seqs_forward and seqs_reverse
-                common_indices = set(range(len(tag_data['seqs_forward']))) & set(range(len(tag_data['seqs_reverse'])))
-            
-                # Create a DataFrame with forward and reverse sequences for common indices
-                tag_df = pd.DataFrame(data={'Forward': [tag_data['seqs_forward'][idx] for idx in common_indices],
-                                            'Reverse': [tag_data['seqs_reverse'][idx] for idx in common_indices]})
+            # Create a DataFrame with forward and reverse sequences for the current tag
+            tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                         'Reverse': tag_data['seqs_reverse']})
 
-
-                # Print the lengths of 'Forward' and 'Reverse' sequences for debugging
-                print(f"{unique_sample_name} - {tag}: Forward length={len(tag_df['Forward'])}, Reverse length={len(tag_df['Reverse'])}")
-
-    
-                # Check if tag_df is empty, skip the tag if it is
-                if tag_df.empty:
-                    logging.warning(f"DataFrame is empty for tag {tag} in {unique_sample_name}. Skipping.")
-                    continue
-
-                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
-                                             'Reverse': tag_data['seqs_reverse']})
-            
-            
-                combined_df = combined_df.append(tag_df, ignore_index=True)
-            
-    
-                # Debugging statements to print lengths
-                logging.info(f"Tag: {tag}, Forward Length: {len(tag_data['seqs_forward'])}, Reverse Length: {len(tag_data['seqs_reverse'])}")
-    
             # Debugging statements
-            logging.info(f"Combined CSV DataFrame size for {unique_sample_name}: {combined_df.shape}")
-    
-            if combined_df.empty:
-                logging.warning(f"Combined DataFrame is empty for {unique_sample_name}. Skipping.")
-                continue
-    
-            # Save the combined DataFrame to a single CSV file
-            save_file = store_dir / f'{unique_sample_name}.csv'
-    
-            # Debugging statements
-            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
-    
-            combined_df = combined_df.dropna()
-            combined_df = combined_df.sample(frac=1)  # randomize
-            combined_df.to_csv(save_file, index=False)
-            logging.info(f"Combined CSV saved for {unique_sample_name}")
-    
+            logging.info(f"Combined CSV DataFrame size for {unique_sample_name} - {tag}: {tag_df.shape}")
+
+            # Append the current tag DataFrame to the combined DataFrame
+            combined_df = combined_df.append(tag_df, ignore_index=True)
+
         except Exception as e:
-            logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+            logging.error(f"Error creating DataFrame for {unique_sample_name} - {tag}: {str(e)}")
+
+    try:
+        # Save the combined DataFrame to a single CSV file
+        save_file = store_dir / f'{unique_sample_name}.csv'
+        logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
+        
+        combined_df = combined_df.dropna()
+        combined_df = combined_df.sample(frac=1)  # randomize
+        combined_df.to_csv(save_file, index=False)
+        logging.info(f"Combined CSV saved for {unique_sample_name}")
+
+    except Exception as e:
+        logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
 
 
 def main():
