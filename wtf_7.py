@@ -135,45 +135,46 @@ def save_to_csv(unique_sample_dataframes, directory_name):
     store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV') / directory_name
     store_dir.mkdir(parents=True, exist_ok=True)
 
-for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
-    combined_df = pd.DataFrame()  # Initialize combined_df for each unique sample
-    
-    for tag, tag_data in data['tags'].items():
-        forward_length = len(tag_data['seqs_forward'])
-        reverse_length = len(tag_data['seqs_reverse'])
-        print(f"{unique_sample_name} - {tag}: Forward length={forward_length}, Reverse length={reverse_length}")
+    for unique_sample_name, data in tqdm(unique_sample_dataframes.items(), desc="Saving CSVs"):
+        combined_df = pd.DataFrame()  # Initialize combined_df for each unique sample
 
-        # Check if lengths match
-        if forward_length != reverse_length:
-            print(f"Lengths mismatch for {unique_sample_name} - {tag}")
-            continue
+        for tag, tag_data in data['tags'].items():
+            forward_length = len(tag_data['seqs_forward'])
+            reverse_length = len(tag_data['seqs_reverse'])
+            print(f"{unique_sample_name} - {tag}: Forward length={forward_length}, Reverse length={reverse_length}")
+
+            # Check if lengths match
+            if forward_length != reverse_length:
+                print(f"Lengths mismatch for {unique_sample_name} - {tag}")
+                continue
+
+            try:
+                print(f"we are trying to create the dataframe...")
+                # Create a DataFrame with forward and reverse sequences for the current tag
+                tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
+                                             'Reverse': tag_data['seqs_reverse']})
+
+                # Debugging statements
+                logging.info(f"Combined CSV DataFrame size for {unique_sample_name} - {tag}: {tag_df.shape}")
+
+                # Append the current tag DataFrame to the combined DataFrame
+                combined_df = combined_df.append(tag_df, ignore_index=True)
+
+            except Exception as e:
+                logging.error(f"Error creating DataFrame for {unique_sample_name} - {tag}: {str(e)}")
 
         try:
-            # Create a DataFrame with forward and reverse sequences for the current tag
-            tag_df = pd.DataFrame(data={'Forward': tag_data['seqs_forward'],
-                                         'Reverse': tag_data['seqs_reverse']})
+            # Save the combined DataFrame to a single CSV file
+            save_file = store_dir / f'{unique_sample_name}.csv'
+            logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
 
-            # Debugging statements
-            logging.info(f"Combined CSV DataFrame size for {unique_sample_name} - {tag}: {tag_df.shape}")
-
-            # Append the current tag DataFrame to the combined DataFrame
-            combined_df = combined_df.append(tag_df, ignore_index=True)
+            combined_df = combined_df.dropna()
+            combined_df = combined_df.sample(frac=1)  # randomize
+            combined_df.to_csv(save_file, index=False)
+            logging.info(f"Combined CSV saved for {unique_sample_name}")
 
         except Exception as e:
-            logging.error(f"Error creating DataFrame for {unique_sample_name} - {tag}: {str(e)}")
-
-    try:
-        # Save the combined DataFrame to a single CSV file
-        save_file = store_dir / f'{unique_sample_name}.csv'
-        logging.info(f"Saving combined CSV for {unique_sample_name} to {save_file}")
-        
-        combined_df = combined_df.dropna()
-        combined_df = combined_df.sample(frac=1)  # randomize
-        combined_df.to_csv(save_file, index=False)
-        logging.info(f"Combined CSV saved for {unique_sample_name}")
-
-    except Exception as e:
-        logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
+            logging.error(f"Error saving combined CSV for {unique_sample_name}: {str(e)}")
 
 
 
