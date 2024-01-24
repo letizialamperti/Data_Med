@@ -18,7 +18,7 @@ def exit_with_error(message):
 
 def locate_excel_file(directory):
     for entry in os.listdir(directory):
-        if entry.lower().startswith("corr_tag") and entry.lower().endswith(".xlsx"):
+        if entry.lower().startswith("corr_tag") and entry.lower().endswith(".txt"):
             return Path(directory) / entry
     return None
 
