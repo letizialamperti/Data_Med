@@ -34,11 +34,11 @@ def read_filename_list(filename_list_path):
 def load_metadata(excel_file):
     try:
         reference_df = pd.read_excel(excel_file)
-        sample_column_name = reference_df.columns[reference_df.columns.str.lower() == 'sample'].tolist()
-        tag_column_name = reference_df.columns[reference_df.columns.str.lower() == 'tag'].tolist()
+        sample_column_name = reference_df.columns[reference_df.columns.str.lower() == 'Sample'].tolist()
+        tag_column_name = reference_df.columns[reference_df.columns.str.lower() == 'Tag'].tolist()
         if not sample_column_name or not tag_column_name:
             exit_with_error("Column 'Sample' or 'TAG' not found in the Excel file. Exiting.")
-        reference_df.rename(columns={tag_column_name[0]: 'TAG', sample_column_name[0]: 'SAMPLE'}, inplace=True)
+        reference_df.rename(columns={tag_column_name[0]: 'Tag', sample_column_name[0]: 'Sample'}, inplace=True)
         return reference_df
     except Exception as e:
         exit_with_error(f"Error loading metadata: {str(e)}")
@@ -80,8 +80,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Extracted RUN name: %s", run_name)
 
     # Filter metadata based on the extracted RUN name
-    run_metadata = reference_df[reference_df.columns[reference_df.columns.astype(str).str.upper() == 'RUN'].str.contains(run_name, case=False, na=False)]
-    #run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
+    run_metadata = reference_df[reference_df['Run'].str.contains(run_name, case=False, na=False)]
     logging.info("Run metadata: %s", run_metadata)
 
     if run_metadata.empty:
@@ -89,7 +88,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         return
 
     # Get unique_sample_names present in the run_metadata
-    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name))
+    unique_sample_names_in_metadata = set(run_metadata['Sample'].apply(extract_base_sample_name))
 
     # Get tags associated with the unique_sample_names
     tags_for_unique_sample_names = {}
@@ -199,9 +198,8 @@ def main():
     reference_df = load_metadata(excel_file)
     
     # Modify: Remove entries with specified sample prefixes
-    # Modify: Remove entries with specified sample prefixes in a case-insensitive manner
-    samples_to_exclude = ['other', 'CINEG']
-    reference_df = reference_df[~reference_df['SAMPLE'].str.casefold().str.startswith(tuple(samples_to_exclude))]
+    samples_to_exclude = ['other', 'OTHER', 'Other', 'CINEG']
+    reference_df = reference_df[~reference_df['Sample'].str.lower().str.startswith(tuple(samples_to_exclude))]
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
     all_filenames = read_filename_list(filename_list_path)
@@ -214,8 +212,8 @@ def main():
 
     # Iterate through each unique sample in reference_df and initialize the data structure
     for _, row in reference_df.iterrows():
-        sample_name = row['SAMPLE']
-        tag = row['TAG']
+        sample_name = row['Sample']
+        tag = row['Tag']
         unique_sample_name = extract_base_sample_name(sample_name)
 
         if unique_sample_name not in unique_sample_dataframes:
