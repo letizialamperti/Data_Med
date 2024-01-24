@@ -36,7 +36,7 @@ def load_metadata(txt_file):
         reference_df = pd.read_csv(txt_file, delimiter='\t')  # Assuming tab-delimited, adjust delimiter as needed
 
         # Rename specific columns to 'TAG', 'RUN', 'SAMPLE'
-        reference_df.rename(columns={'Tag': 'TAG', 'Run': 'RUN', 'Sample': 'SAMPLE'}, inplace=True)
+        reference_df.rename(columns={'Tag': 'TAG', 'Code Run': 'RUN', 'Sample': 'SAMPLE'}, inplace=True)
 
         # Convert all column names to uppercase
         reference_df.columns = reference_df.columns.str.upper()
