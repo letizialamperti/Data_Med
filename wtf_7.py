@@ -80,7 +80,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Extracted RUN name: %s", run_name)
 
     # Filter metadata based on the extracted RUN name
-    run_metadata = reference_df[reference_df.columns[reference_df.columns.astype(str).str.lower() == 'run'].str.contains(run_name, case=False, na=False)]
+    run_metadata = reference_df[reference_df.columns[reference_df.columns.astype(str).str.upper() == 'RUN'].str.contains(run_name, case=False, na=False)]
     #run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
     logging.info("Run metadata: %s", run_metadata)
 
@@ -89,7 +89,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
         return
 
     # Get unique_sample_names present in the run_metadata
-    unique_sample_names_in_metadata = set(run_metadata['sample'].apply(extract_base_sample_name))
+    unique_sample_names_in_metadata = set(run_metadata['SAMPLE'].apply(extract_base_sample_name))
 
     # Get tags associated with the unique_sample_names
     tags_for_unique_sample_names = {}
