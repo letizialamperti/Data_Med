@@ -80,7 +80,8 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Extracted RUN name: %s", run_name)
 
     # Filter metadata based on the extracted RUN name
-    run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
+    run_metadata = reference_df[reference_df.columns[reference_df.columns.str.lower() == 'run'].str.contains(run_name, case=False, na=False)]
+    #run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
     logging.info("Run metadata: %s", run_metadata)
 
     if run_metadata.empty:
