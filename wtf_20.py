@@ -239,7 +239,7 @@ if __name__ == "__main__":
         exit_with_error("Please provide the excel name and the directory name as arguments.")
 
     
-    directory_name = sys.argv[2]
-    excel_file_name = sys.argv[1]
+    directory_name = sys.argv[1]
+    excel_file_name = sys.argv[2]
     main(excel_file_name, directory_name)
     
