@@ -182,13 +182,14 @@ def save_to_csv(unique_sample_dataframes, directory_name):
 
 
 
-def main(excel_file_path, directory_name):
+def main(excel_file_name, directory_name):
     setup_logging()
 
     fastq_dir = Path(f'/store/sdsc/sd29/med_data_wp3/{directory_name}')
     store_dir = Path('/scratch/snx3000/llampert/MED_SAMPLES_CSV')
 
-    reference_df = load_metadata(/store/sdsc/sd29/med_data_wp3/{directory_name}/excel_file_path)
+    reference_df = load_metadata(f'/store/sdsc/sd29/med_data_wp3/{directory_name}/{excel_file_name}')
+
     
     # Modify: Remove entries with specified sample prefixes
     samples_to_exclude = ['other', 'OTHER', 'Other', 'CINEG', 'cineg', 'Cineg']
@@ -232,11 +233,13 @@ def main(excel_file_path, directory_name):
 
 
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        exit_with_error("Please provide the exel name and the directory name as arguments.")
+        exit_with_error("Please provide the excel name and the directory name as arguments.")
 
-    excel_file_path = sys.argv[1]
+    
     directory_name = sys.argv[2]
-    main(excel_file_path, directory_name)
+    excel_file_name = sys.argv[1]
+    main(excel_file_name, directory_name)
     
