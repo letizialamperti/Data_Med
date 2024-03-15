@@ -191,7 +191,7 @@ def main(excel_file_path, directory_name):
     reference_df = load_metadata(excel_file_path)
     
     # Modify: Remove entries with specified sample prefixes
-    samples_to_exclude = ['other', 'OTHER', 'Other', 'CINEG']
+    samples_to_exclude = ['other', 'OTHER', 'Other', 'CINEG', 'cineg', 'Cineg']
     reference_df = reference_df[~reference_df['SAMPLE'].str.lower().str.startswith(tuple(samples_to_exclude))]
 
     filename_list_path = f'/users/llampert/Data_Med/Fieldworks_refs/{directory_name}.txt'
