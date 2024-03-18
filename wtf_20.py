@@ -26,23 +26,31 @@ def read_filename_list(filename_list_path):
         exit_with_error(f"Error reading filename list: {str(e)}")
 
 
-def load_metadata(excel_file):
+def load_metadata(file_path):
     try:
-        reference_df = pd.read_excel(excel_file)
+        if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
+            reference_df = pd.read_excel(file_path)
+        elif file_path.endswith('.txt'):
+            reference_df = pd.read_csv(file_path, sep='\t')  # Si presume che il file di testo sia delimitato da tabulazioni
+        else:
+            exit_with_error("Unsupported file format. Please provide either an Excel (.xlsx, .xls) or a text (.txt) file.")
+        
         sample_column_name = reference_df.columns[reference_df.columns.str.lower() == 'sample'].tolist()
         tag_column_name = reference_df.columns[reference_df.columns.str.lower() == 'tag'].tolist()
-        if not sample_column_name or not tag_column_name:
-            exit_with_error("Column 'Sample' or 'TAG' not found in the Excel file. Exiting.")
         
-        # Rename columns to 'TAG' and 'SAMPLE'
+        if not sample_column_name or not tag_column_name:
+            exit_with_error("Column 'Sample' or 'TAG' not found in the file. Exiting.")
+        
+        # Rinomina le colonne in 'TAG' e 'SAMPLE'
         reference_df.rename(columns={tag_column_name[0]: 'TAG', sample_column_name[0]: 'SAMPLE'}, inplace=True)
 
-        # Convert all column names to uppercase
+        # Converti tutti i nomi delle colonne in maiuscolo
         reference_df.columns = reference_df.columns.str.upper()
 
         return reference_df
     except Exception as e:
         exit_with_error(f"Error loading metadata: {str(e)}")
+
 
 def get_tag(seq: str) -> str:
     f_primer = "acaccgcccgtcactct"
