@@ -80,7 +80,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Processing: %s", filename)
 
     # Extract the RUN name from the filename using a regular expression
-    run_name_match = re.search(r'_(.{8})_[R12]', filename)
+    run_name_match = re.search(r'_(.{8})___[R12]', filename)
     if not run_name_match:
         logging.warning(f"Skipping {filename}: RUN name not found in filename.")
         return
@@ -89,7 +89,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Extracted RUN name: %s", run_name)
 
     # Filter metadata based on the extracted RUN name
-    run_metadata = reference_df[reference_df['Code Run'].str.contains(run_name, case=False, na=False)]
+    run_metadata = reference_df[reference_df['RUN'].str.contains(run_name, case=False, na=False)]
     logging.info("Run metadata: %s", run_metadata)
 
     if run_metadata.empty:
@@ -231,9 +231,11 @@ def main(excel_file_name, directory_name):
             # Skip files that are not R1 files
             continue
 
+
         # Process the forward and reverse FASTQ files directly within the loop
-        forward_file = fastq_dir / f"{filename[:-12]}_R1.fastq.gz"
-        reverse_file = fastq_dir / f"{filename[:-12]}_R2.fastq.gz"
+        forward_file = fastq_dir / f"{filename[:-14]}___R1.fastq.gz"
+        reverse_file = fastq_dir / f"{filename[:-14]}___R2.fastq.gz"
+
 
         process_file(fastq_dir, filename, reference_df, unique_sample_dataframes, forward_file, reverse_file)
 
