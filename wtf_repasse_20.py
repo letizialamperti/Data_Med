@@ -80,7 +80,7 @@ def process_file(directory, filename, reference_df, unique_sample_dataframes, fo
     logging.info("Processing: %s", filename)
 
     # Extract the RUN name from the filename using a regular expression
-    run_name_match = re.search(r'_(.{8})_[R12]', filename)
+    run_name_match = re.search(r'_(.{8})_[S12]', filename)
     if not run_name_match:
         logging.warning(f"Skipping {filename}: RUN name not found in filename.")
         return
